@@ -29,7 +29,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": ["src/styles/styles.scss"],
             "polyfills": ["zone.js"]
           },
           "configurations": {
@@ -83,7 +83,8 @@
             "browserTarget": "test-technique-dougs:build",
             "compodoc": true,
             "compodocArgs": ["-e", "json", "-d", "."],
-            "port": 6006
+            "port": 6006,
+            "styles": ["src/styles/styles.scss"]
           }
         },
         "build-storybook": {
