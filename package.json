@@ -1,0 +1,72 @@
+{
+  "name": "test-technique-dougs",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "storybook": "ng run test-technique-dougs:storybook",
+    "build-storybook": "ng run test-technique-dougs:build-storybook",
+    "prepare": "husky"
+  },
+  "private": true,
+  "lint-staged": {
+    "*.{js,ts,html,scss}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "packageManager": "npm@11.6.2",
+  "dependencies": {
+    "@angular/common": "^20.0.0",
+    "@angular/compiler": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@angular/forms": "^20.0.0",
+    "@angular/platform-browser": "^20.0.0",
+    "@angular/router": "^20.0.0",
+    "@ngxs/devtools-plugin": "^20.1.0",
+    "@ngxs/logger-plugin": "^20.1.0",
+    "@ngxs/store": "^20.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.1"
+  },
+  "devDependencies": {
+    "@angular-devkit/architect": "^0.2000.0",
+    "@angular-devkit/build-angular": "^20.0.0",
+    "@angular-devkit/core": "^20.0.0",
+    "@angular-eslint/builder": "^20.0.0",
+    "@angular-eslint/eslint-plugin": "^20.0.0",
+    "@angular-eslint/eslint-plugin-template": "^20.0.0",
+    "@angular-eslint/template-parser": "^20.0.0",
+    "@angular/build": "^20.0.0",
+    "@angular/cli": "^20.0.0",
+    "@angular/compiler-cli": "^20.0.0",
+    "@angular/platform-browser-dynamic": "^20.0.0",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@compodoc/compodoc": "^1.2.1",
+    "@storybook/addon-a11y": "^10.2.19",
+    "@storybook/addon-docs": "^10.2.19",
+    "@storybook/angular": "^10.2.19",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-storybook": "^10.2.19",
+    "husky": "^9.1.7",
+    "jsdom": "^28.0.0",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
+    "storybook": "^10.2.19",
+    "typescript": "~5.8.0",
+    "typescript-eslint": "^8.57.0",
+    "vitest": "^4.0.8"
+  }
+}

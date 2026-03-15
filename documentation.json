@@ -1,0 +1,323 @@
+{
+  "pipes": [],
+  "interfaces": [],
+  "injectables": [],
+  "guards": [],
+  "interceptors": [],
+  "classes": [],
+  "directives": [],
+  "components": [
+    {
+      "name": "App",
+      "id": "component-App-2991e400884aa4d52278bdc6e9e80099a350056c46eb9f3e07ceaa4e47328c4e4485d3ab3caca5e7f030151a63908a2fd4e92d8cbb05e87d45cf4df55f3c534b",
+      "file": "src/app/app.ts",
+      "encapsulation": [],
+      "entryComponents": [],
+      "inputs": [],
+      "outputs": [],
+      "providers": [],
+      "selector": "app-root",
+      "styleUrls": [],
+      "styles": [],
+      "templateUrl": ["./app.html"],
+      "viewProviders": [],
+      "hostDirectives": [],
+      "inputsClass": [],
+      "outputsClass": [],
+      "propertiesClass": [],
+      "methodsClass": [],
+      "deprecated": false,
+      "deprecationMessage": "",
+      "hostBindings": [],
+      "hostListeners": [],
+      "standalone": false,
+      "imports": [
+        {
+          "name": "RouterOutlet"
+        }
+      ],
+      "description": "",
+      "rawdescription": "\n",
+      "type": "component",
+      "sourceCode": "import { Component } from '@angular/core';\nimport { RouterOutlet } from '@angular/router';\n\n@Component({\n  selector: 'app-root',\n  imports: [RouterOutlet],\n  templateUrl: './app.html',\n  styleUrl: './app.scss',\n})\nexport class App { }\n",
+      "styleUrl": "./app.scss",
+      "assetsDirs": [],
+      "styleUrlsData": "",
+      "stylesData": "",
+      "extends": [],
+      "templateData": "<router-outlet />\n"
+    },
+    {
+      "name": "ButtonComponent",
+      "id": "component-ButtonComponent-ec7789baff8bf092efc75c3699cb54c6e47026b1ffa7ff3b2e89911f51b3463a50d66649177cfb4725dc314c4bc3d138fa3a6177ec5aae1b5aab541390431ed9",
+      "file": "src/app/ui/button/button.component.ts",
+      "encapsulation": [],
+      "entryComponents": [],
+      "inputs": [],
+      "outputs": [],
+      "providers": [],
+      "selector": "app-button",
+      "styleUrls": [],
+      "styles": [
+        "\n      :host {\n        display: inline-flex;\n      }\n\n      button {\n        display: inline-flex;\n        align-items: center;\n        justify-content: center;\n        gap: 0.5rem;\n        border: none;\n        border-radius: 0.5rem;\n        font-family: inherit;\n        font-weight: 600;\n        cursor: pointer;\n        transition: background 0.2s ease, opacity 0.2s ease;\n      }\n\n      button:disabled {\n        opacity: 0.5;\n        cursor: not-allowed;\n      }\n\n      .btn-sm {\n        padding: 0.375rem 0.75rem;\n        font-size: 0.875rem;\n      }\n      .btn-md {\n        padding: 0.625rem 1.25rem;\n        font-size: 1rem;\n      }\n      .btn-lg {\n        padding: 0.875rem 1.75rem;\n        font-size: 1.125rem;\n      }\n\n      .btn-primary {\n        background: #4f46e5;\n        color: #fff;\n      }\n      .btn-primary:hover:not(:disabled) {\n        background: #4338ca;\n      }\n\n      .btn-secondary {\n        background: #e5e7eb;\n        color: #111827;\n      }\n      .btn-secondary:hover:not(:disabled) {\n        background: #d1d5db;\n      }\n\n      .btn-ghost {\n        background: transparent;\n        color: #4f46e5;\n        text-decoration: underline;\n      }\n      .btn-ghost:hover:not(:disabled) {\n        color: #4338ca;\n      }\n    "
+      ],
+      "template": "<button\n  [class]=\"classes\"\n  [disabled]=\"disabled\"\n  [attr.aria-disabled]=\"disabled\"\n  [attr.aria-label]=\"ariaLabel || undefined\"\n>\n  <ng-content />\n</button>\n",
+      "templateUrl": [],
+      "viewProviders": [],
+      "hostDirectives": [],
+      "inputsClass": [],
+      "outputsClass": [],
+      "propertiesClass": [
+        {
+          "name": "ariaLabel",
+          "defaultValue": "''",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "type": "string",
+          "indexKey": "",
+          "optional": false,
+          "description": "",
+          "line": 89
+        },
+        {
+          "name": "disabled",
+          "defaultValue": "false",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "type": "unknown",
+          "indexKey": "",
+          "optional": false,
+          "description": "",
+          "line": 88
+        },
+        {
+          "name": "size",
+          "defaultValue": "'md'",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "type": "ButtonSize",
+          "indexKey": "",
+          "optional": false,
+          "description": "",
+          "line": 87
+        },
+        {
+          "name": "variant",
+          "defaultValue": "'primary'",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "type": "ButtonVariant",
+          "indexKey": "",
+          "optional": false,
+          "description": "",
+          "line": 86
+        }
+      ],
+      "methodsClass": [],
+      "deprecated": false,
+      "deprecationMessage": "",
+      "hostBindings": [],
+      "hostListeners": [],
+      "standalone": true,
+      "imports": [
+        {
+          "name": "CommonModule",
+          "type": "module"
+        }
+      ],
+      "description": "",
+      "rawdescription": "\n",
+      "type": "component",
+      "sourceCode": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\nexport type ButtonVariant = 'primary' | 'secondary' | 'ghost';\nexport type ButtonSize = 'sm' | 'md' | 'lg';\n\n@Component({\n    selector: 'app-button',\n    standalone: true,\n    imports: [CommonModule],\n    template: `\n    <button\n      [class]=\"classes\"\n      [disabled]=\"disabled\"\n      [attr.aria-disabled]=\"disabled\"\n      [attr.aria-label]=\"ariaLabel || undefined\"\n    >\n      <ng-content />\n    </button>\n  `,\n    styles: [\n        `\n      :host {\n        display: inline-flex;\n      }\n\n      button {\n        display: inline-flex;\n        align-items: center;\n        justify-content: center;\n        gap: 0.5rem;\n        border: none;\n        border-radius: 0.5rem;\n        font-family: inherit;\n        font-weight: 600;\n        cursor: pointer;\n        transition: background 0.2s ease, opacity 0.2s ease;\n      }\n\n      button:disabled {\n        opacity: 0.5;\n        cursor: not-allowed;\n      }\n\n      .btn-sm {\n        padding: 0.375rem 0.75rem;\n        font-size: 0.875rem;\n      }\n      .btn-md {\n        padding: 0.625rem 1.25rem;\n        font-size: 1rem;\n      }\n      .btn-lg {\n        padding: 0.875rem 1.75rem;\n        font-size: 1.125rem;\n      }\n\n      .btn-primary {\n        background: #4f46e5;\n        color: #fff;\n      }\n      .btn-primary:hover:not(:disabled) {\n        background: #4338ca;\n      }\n\n      .btn-secondary {\n        background: #e5e7eb;\n        color: #111827;\n      }\n      .btn-secondary:hover:not(:disabled) {\n        background: #d1d5db;\n      }\n\n      .btn-ghost {\n        background: transparent;\n        color: #4f46e5;\n        text-decoration: underline;\n      }\n      .btn-ghost:hover:not(:disabled) {\n        color: #4338ca;\n      }\n    `,\n    ],\n})\nexport class ButtonComponent {\n    variant: ButtonVariant = 'primary';\n    size: ButtonSize = 'md';\n    disabled = false;\n    ariaLabel = '';\n\n    get classes(): string {\n        return `btn-${this.size} btn-${this.variant}`;\n    }\n}\n",
+      "assetsDirs": [],
+      "styleUrlsData": "",
+      "stylesData": "\n      :host {\n        display: inline-flex;\n      }\n\n      button {\n        display: inline-flex;\n        align-items: center;\n        justify-content: center;\n        gap: 0.5rem;\n        border: none;\n        border-radius: 0.5rem;\n        font-family: inherit;\n        font-weight: 600;\n        cursor: pointer;\n        transition: background 0.2s ease, opacity 0.2s ease;\n      }\n\n      button:disabled {\n        opacity: 0.5;\n        cursor: not-allowed;\n      }\n\n      .btn-sm {\n        padding: 0.375rem 0.75rem;\n        font-size: 0.875rem;\n      }\n      .btn-md {\n        padding: 0.625rem 1.25rem;\n        font-size: 1rem;\n      }\n      .btn-lg {\n        padding: 0.875rem 1.75rem;\n        font-size: 1.125rem;\n      }\n\n      .btn-primary {\n        background: #4f46e5;\n        color: #fff;\n      }\n      .btn-primary:hover:not(:disabled) {\n        background: #4338ca;\n      }\n\n      .btn-secondary {\n        background: #e5e7eb;\n        color: #111827;\n      }\n      .btn-secondary:hover:not(:disabled) {\n        background: #d1d5db;\n      }\n\n      .btn-ghost {\n        background: transparent;\n        color: #4f46e5;\n        text-decoration: underline;\n      }\n      .btn-ghost:hover:not(:disabled) {\n        color: #4338ca;\n      }\n    \n",
+      "extends": [],
+      "accessors": {
+        "classes": {
+          "name": "classes",
+          "getSignature": {
+            "name": "classes",
+            "type": "string",
+            "returnType": "string",
+            "line": 91
+          }
+        }
+      }
+    }
+  ],
+  "modules": [],
+  "miscellaneous": {
+    "variables": [
+      {
+        "name": "appConfig",
+        "ctype": "miscellaneous",
+        "subtype": "variable",
+        "file": "src/app/app.config.ts",
+        "deprecated": false,
+        "deprecationMessage": "",
+        "type": "ApplicationConfig",
+        "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+      },
+      {
+        "name": "routes",
+        "ctype": "miscellaneous",
+        "subtype": "variable",
+        "file": "src/app/app.routes.ts",
+        "deprecated": false,
+        "deprecationMessage": "",
+        "type": "Routes",
+        "defaultValue": "[]"
+      }
+    ],
+    "functions": [],
+    "typealiases": [
+      {
+        "name": "ButtonSize",
+        "ctype": "miscellaneous",
+        "subtype": "typealias",
+        "rawtype": "\"sm\" | \"md\" | \"lg\"",
+        "file": "src/app/ui/button/button.component.ts",
+        "deprecated": false,
+        "deprecationMessage": "",
+        "description": "",
+        "kind": 193
+      },
+      {
+        "name": "ButtonVariant",
+        "ctype": "miscellaneous",
+        "subtype": "typealias",
+        "rawtype": "\"primary\" | \"secondary\" | \"ghost\"",
+        "file": "src/app/ui/button/button.component.ts",
+        "deprecated": false,
+        "deprecationMessage": "",
+        "description": "",
+        "kind": 193
+      }
+    ],
+    "enumerations": [],
+    "groupedVariables": {
+      "src/app/app.config.ts": [
+        {
+          "name": "appConfig",
+          "ctype": "miscellaneous",
+          "subtype": "variable",
+          "file": "src/app/app.config.ts",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "type": "ApplicationConfig",
+          "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+        }
+      ],
+      "src/app/app.routes.ts": [
+        {
+          "name": "routes",
+          "ctype": "miscellaneous",
+          "subtype": "variable",
+          "file": "src/app/app.routes.ts",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "type": "Routes",
+          "defaultValue": "[]"
+        }
+      ]
+    },
+    "groupedFunctions": {},
+    "groupedEnumerations": {},
+    "groupedTypeAliases": {
+      "src/app/ui/button/button.component.ts": [
+        {
+          "name": "ButtonSize",
+          "ctype": "miscellaneous",
+          "subtype": "typealias",
+          "rawtype": "\"sm\" | \"md\" | \"lg\"",
+          "file": "src/app/ui/button/button.component.ts",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "description": "",
+          "kind": 193
+        },
+        {
+          "name": "ButtonVariant",
+          "ctype": "miscellaneous",
+          "subtype": "typealias",
+          "rawtype": "\"primary\" | \"secondary\" | \"ghost\"",
+          "file": "src/app/ui/button/button.component.ts",
+          "deprecated": false,
+          "deprecationMessage": "",
+          "description": "",
+          "kind": 193
+        }
+      ]
+    }
+  },
+  "routes": {
+    "name": "<root>",
+    "kind": "module",
+    "children": []
+  },
+  "coverage": {
+    "count": 0,
+    "status": "low",
+    "files": [
+      {
+        "filePath": "src/app/app.config.ts",
+        "type": "variable",
+        "linktype": "miscellaneous",
+        "linksubtype": "variable",
+        "name": "appConfig",
+        "coveragePercent": 0,
+        "coverageCount": "0/1",
+        "status": "low"
+      },
+      {
+        "filePath": "src/app/app.routes.ts",
+        "type": "variable",
+        "linktype": "miscellaneous",
+        "linksubtype": "variable",
+        "name": "routes",
+        "coveragePercent": 0,
+        "coverageCount": "0/1",
+        "status": "low"
+      },
+      {
+        "filePath": "src/app/app.ts",
+        "type": "component",
+        "linktype": "component",
+        "name": "App",
+        "coveragePercent": 0,
+        "coverageCount": "0/1",
+        "status": "low"
+      },
+      {
+        "filePath": "src/app/ui/button/button.component.ts",
+        "type": "component",
+        "linktype": "component",
+        "name": "ButtonComponent",
+        "coveragePercent": 0,
+        "coverageCount": "0/5",
+        "status": "low"
+      },
+      {
+        "filePath": "src/app/ui/button/button.component.ts",
+        "type": "type alias",
+        "linktype": "miscellaneous",
+        "linksubtype": "typealias",
+        "name": "ButtonSize",
+        "coveragePercent": 0,
+        "coverageCount": "0/1",
+        "status": "low"
+      },
+      {
+        "filePath": "src/app/ui/button/button.component.ts",
+        "type": "type alias",
+        "linktype": "miscellaneous",
+        "linksubtype": "typealias",
+        "name": "ButtonVariant",
+        "coveragePercent": 0,
+        "coverageCount": "0/1",
+        "status": "low"
+      }
+    ]
+  }
+}
