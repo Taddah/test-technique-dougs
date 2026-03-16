@@ -6,7 +6,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   imports: [RouterLink, RouterLinkActive],
   standalone: true,
   template: `
-    <a class="tab tab-text" [routerLink]="[link()]" routerLinkActive="tab__active">
+    <a
+      class="tab tab-text"
+      [routerLink]="[link()]"
+      routerLinkActive="tab__active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
       <ng-content></ng-content>
     </a>
   `,
