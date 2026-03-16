@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { Pill } from './pill.component';
+import { Pill } from './pill';
 
 const meta: Meta<Pill & { content: string }> = {
   title: 'UI/Pill',
