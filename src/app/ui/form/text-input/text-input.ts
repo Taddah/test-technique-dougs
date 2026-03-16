@@ -1,0 +1,114 @@
+import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { IconComponent } from '../../icon/icon';
+
+// ControlValueAccessor mais ça reste gros pour un simple champ texte,
+// un signal bidirectionnel (model) pourrait aussi faire l'affaire
+@Component({
+  selector: 'app-text-input',
+  imports: [IconComponent],
+  template: `
+    <label class="input-text__wrapper">
+      @if (iconName(); as icon) {
+        <app-icon [name]="icon" class="input-text__icon" aria-hidden="true"></app-icon>
+      }
+      <input
+        type="text"
+        class="input-text__control paragraph-tiny"
+        [placeholder]="placeholder()"
+        [value]="value"
+        (input)="onInput($event)"
+        [disabled]="disabled"
+      />
+    </label>
+  `,
+  styles: `
+    .input-text {
+      &__wrapper {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 10.5px 9px;
+        border: 1px solid var(--separator, #e0e0e0);
+        border-radius: 4px;
+        background-color: var(--background, #ffffff);
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        cursor: text;
+
+        &:focus-within {
+          border-color: var(--cerulean);
+
+          .input-text__icon {
+            color: var(--cerulean);
+          }
+        }
+      }
+
+      &__icon {
+        flex-shrink: 0;
+        margin-right: 8px;
+        color: var(--text-color, inherit);
+        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &__control {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 0;
+        font-size: 14px;
+        color: inherit;
+      }
+    }
+  `,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TextInput),
+      multi: true,
+    },
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class TextInput implements ControlValueAccessor {
+  readonly iconName = input<string | null>(null);
+  readonly placeholder = input<string>('');
+
+  value = '';
+  disabled = false;
+
+  onChange: ((value: string) => void) | undefined;
+  onTouched: (() => void) | undefined;
+
+  onInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.value = target.value;
+    if (this.onChange) {
+      this.onChange(this.value);
+    }
+  }
+
+  writeValue(value: unknown): void {
+    this.value = typeof value === 'string' ? value : '';
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+}
