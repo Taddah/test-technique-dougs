@@ -1,8 +1,30 @@
+@font-face {
+  font-family: 'Eina-SemiBold';
+  src: url('/assets/fonts/Eina-01-Semi-Bold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+
 .paragraph-tiny {
   font-family: 'Open Sans';
   font-weight: 400;
   font-size: 12px;
   line-height: 1;
+  letter-spacing: 0;
+}
+
+.paragraph-semi-bold {
+  font-family: 'Eina-SemiBold';
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.paragraph-small {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
   letter-spacing: 0;
 }
 
@@ -17,5 +39,14 @@
 p {
   display: flex;
   align-items: center;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
 }

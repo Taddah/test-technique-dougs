@@ -47,12 +47,96 @@
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "<head>\n  <meta charset=\"utf-8\" />\n  <title>Test technique - Dougs</title>\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n\n  <link\n    href=\"https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap\"\n    rel=\"stylesheet\"\n  />\n</head>\n\n<router-outlet />\n"
+            "templateData": "<router-outlet />\n"
+        },
+        {
+            "name": "Card",
+            "id": "component-Card-a28edf1968579026067dc270d047ce8b772f263e414054fb629bb55f91f38348a90383c60776de6ef5ffab37df96818d8e08a16124e5cf1d830419f31bf8643a",
+            "file": "src/app/ui/card/card.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-card",
+            "styleUrls": [],
+            "styles": [
+                "\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 4px;\n      padding: 16px;\n      border: 1px solid var(--separator);\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  "
+            ],
+            "template": "<div class=\"card\" [class.card__selected]=\"selected()\">\n  <h6 class=\"paragraph-semi-bold card__title\">{{ title() }}</h6>\n  <p class=\"paragraph-small card__description\">{{ description() }}</p>\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "description",
+                    "defaultValue": "'Card description'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 42,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "selected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 43,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "title",
+                    "defaultValue": "'Card title'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 41,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": false,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-card',\n  imports: [],\n  template: `\n    <div class=\"card\" [class.card__selected]=\"selected()\">\n      <h6 class=\"paragraph-semi-bold card__title\">{{ title() }}</h6>\n      <p class=\"paragraph-small card__description\">{{ description() }}</p>\n    </div>\n  `,\n  styles: `\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 4px;\n      padding: 16px;\n      border: 1px solid var(--separator);\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Card {\n  readonly title = input<string>('Card title');\n  readonly description = input<string>('Card description');\n  readonly selected = input<boolean>(false);\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 4px;\n      padding: 16px;\n      border: 1px solid var(--separator);\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  \n",
+            "extends": []
         },
         {
             "name": "Pill",
-            "id": "component-Pill-918ecf23fd9de68bf416417f7ff9ccd5ba72228fa0afc1cb73244db57266879ad23697526397b6d6824682eebc428d79c60e99017c88f29543100d3bd9c42d6e",
-            "file": "src/app/ui/pill/pill.component.ts",
+            "id": "component-Pill-76a8ddbff5839ccd83f835c95310d1b6b797bcca662af0944db915282748fc90ad3f890a014a1b5e13a3c628c910a08e046bc8593b06f17c348f128e7e0f2c47",
+            "file": "src/app/ui/pill/pill.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
@@ -79,6 +163,9 @@
                     "optional": false,
                     "description": "",
                     "line": 40,
+                    "modifierKind": [
+                        148
+                    ],
                     "required": false
                 }
             ],
@@ -94,7 +181,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pill',\n  standalone: true,\n  template: `\n    <p class=\"pill paragraph-tiny\" [class]=\"'pill__' + color()\">\n      <ng-content></ng-content>\n    </p>\n  `,\n  styles: `\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 2px 12px;\n      border-radius: 16px;\n      width: fit-content;\n      height: 20px;\n      box-sizing: border-box;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Pill {\n  color = input<'blue' | 'red' | 'yellow'>('blue');\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pill',\n  standalone: true,\n  template: `\n    <p class=\"pill paragraph-tiny\" [class]=\"'pill__' + color()\">\n      <ng-content></ng-content>\n    </p>\n  `,\n  styles: `\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 2px 12px;\n      border-radius: 16px;\n      width: fit-content;\n      height: 20px;\n      box-sizing: border-box;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Pill {\n  readonly color = input<'blue' | 'red' | 'yellow'>('blue');\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 2px 12px;\n      border-radius: 16px;\n      width: fit-content;\n      height: 20px;\n      box-sizing: border-box;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n    }\n  \n",
@@ -102,8 +189,8 @@
         },
         {
             "name": "Tab",
-            "id": "component-Tab-4c085d361888d2492bec92c08c58ccd9a02a34411389716e1421493ebc5cc7d34c2ae3c7a0b278a02abf7e126abadde26c8b56f2e00d04310d0e3f1e5be8ccb7",
-            "file": "src/app/ui/tab/tab.component.ts",
+            "id": "component-Tab-f995c9830218d9f4d44b0536fb98a71b4b4e878fa7c70d7a7a56273df12c2344882fb04603ad99db40de22be7981894cd27b4dcd61e1480b6cfd02e5138f0bd5",
+            "file": "src/app/ui/tab/tab.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
             "entryComponents": [],
@@ -130,6 +217,9 @@
                     "optional": false,
                     "description": "",
                     "line": 35,
+                    "modifierKind": [
+                        148
+                    ],
                     "required": false
                 }
             ],
@@ -152,7 +242,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { RouterLink, RouterLinkActive } from '@angular/router';\n\n@Component({\n  selector: 'app-tab',\n  imports: [RouterLink, RouterLinkActive],\n  standalone: true,\n  template: `\n    <a class=\"tab tab-text\" [routerLink]=\"[link()]\" routerLinkActive=\"tab__active\">\n      <ng-content></ng-content>\n    </a>\n  `,\n  styles: `\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Tab {\n  link = input<string>('');\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { RouterLink, RouterLinkActive } from '@angular/router';\n\n@Component({\n  selector: 'app-tab',\n  imports: [RouterLink, RouterLinkActive],\n  standalone: true,\n  template: `\n    <a class=\"tab tab-text\" [routerLink]=\"[link()]\" routerLinkActive=\"tab__active\">\n      <ng-content></ng-content>\n    </a>\n  `,\n  styles: `\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Tab {\n  readonly link = input<string>('');\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  \n",
@@ -255,7 +345,16 @@
                 "status": "low"
             },
             {
-                "filePath": "src/app/ui/pill/pill.component.ts",
+                "filePath": "src/app/ui/card/card.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Card",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/pill/pill.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "Pill",
@@ -264,7 +363,7 @@
                 "status": "low"
             },
             {
-                "filePath": "src/app/ui/tab/tab.component.ts",
+                "filePath": "src/app/ui/tab/tab.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "Tab",

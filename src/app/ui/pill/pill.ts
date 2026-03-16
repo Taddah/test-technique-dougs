@@ -37,5 +37,5 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Pill {
-  color = input<'blue' | 'red' | 'yellow'>('blue');
+  readonly color = input<'blue' | 'red' | 'yellow'>('blue');
 }

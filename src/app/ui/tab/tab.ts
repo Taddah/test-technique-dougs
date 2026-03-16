@@ -32,5 +32,5 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Tab {
-  link = input<string>('');
+  readonly link = input<string>('');
 }
