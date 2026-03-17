@@ -1,5 +1,5 @@
 import { type Meta, type StoryObj } from '@storybook/angular';
-import { TextInput } from './text-input';
+import { TextInput } from '@ui/form/text-input/text-input';
 
 const meta: Meta<TextInput> = {
   title: 'UI/Form/Text Input',

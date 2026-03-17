@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Tab } from '../../../ui/tab/tab';
-import { IconComponent } from '../../../ui/icon/icon';
+import { Tab } from '@ui/tab/tab';
+import { IconComponent } from '@ui/icon/icon';
 
 @Component({
   selector: 'app-header',

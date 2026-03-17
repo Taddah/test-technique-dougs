@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IconComponent } from '../../icon/icon';
+import { IconComponent } from '@ui/icon/icon';
 
 // ControlValueAccessor mais ça reste gros pour un simple champ texte,
 // un signal bidirectionnel (model) pourrait aussi faire l'affaire
@@ -64,8 +64,6 @@ import { IconComponent } from '../../icon/icon';
         outline: none;
         background: transparent;
         padding: 0;
-        font-size: 14px;
-        color: inherit;
       }
     }
   `,
