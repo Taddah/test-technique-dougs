@@ -48,11 +48,6 @@ export interface DropdownOption<T = string> {
     </div>
   `,
   styles: `
-    :host {
-      display: block;
-      position: relative;
-    }
-
     .dropdown {
       &__wrapper {
         position: relative;
@@ -66,6 +61,8 @@ export interface DropdownOption<T = string> {
           border-color 0.2s ease,
           box-shadow 0.2s ease;
         cursor: pointer;
+        height: 100%;
+        box-sizing: border-box;
 
         &--disabled {
           opacity: 0.5;

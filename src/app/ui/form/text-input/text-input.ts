@@ -30,11 +30,13 @@ import { IconComponent } from '@ui/icon/icon';
         padding: 0.6563rem 0.5625rem;
         border: 0.0625rem solid var(--separator, #e0e0e0);
         border-radius: 0.25rem;
+        height: 100%;
         background-color: var(--background, #ffffff);
         transition:
           border-color 0.2s ease,
           box-shadow 0.2s ease;
         cursor: text;
+        box-sizing: border-box;
 
         &:focus-within {
           border-color: var(--cerulean);
@@ -53,6 +55,8 @@ import { IconComponent } from '@ui/icon/icon';
         display: flex;
         align-items: center;
         justify-content: center;
+        height: 0.875rem;
+        width: 0.875rem;
       }
 
       &__control {
