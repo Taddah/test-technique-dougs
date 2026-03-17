@@ -19,8 +19,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     .tab {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px;
+      gap: 0.5rem;
+      padding: 0.5rem;
       color: black;
       text-decoration: none;
 

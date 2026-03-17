@@ -1,6 +1,42 @@
 {
     "pipes": [],
-    "interfaces": [],
+    "interfaces": [
+        {
+            "name": "DropdownOption",
+            "id": "interface-DropdownOption-6629ab55e5e490600540ff2ec91062c6bcf82e142fb4254083ded72a409af97e619f0ace4f5aa31a8b38640480adc01a6c9cdf83a0d3e43b651755053063c1c3",
+            "file": "src/app/ui/form/dropdown/dropdown.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  HostListener,\n  input,\n  model,\n  signal,\n  inject,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\nlet nextId = 0;\n\nexport interface DropdownOption<T = string> {\n  value: T;\n  label: string;\n}\n\n@Component({\n  selector: 'app-dropdown',\n  imports: [IconComponent],\n  template: `\n    <div\n      class=\"dropdown__wrapper\"\n      [class.dropdown__wrapper--disabled]=\"disabled()\"\n      [class.dropdown__wrapper--opened]=\"isOpen()\"\n      (click)=\"toggleDropdown()\"\n    >\n      <div class=\"dropdown__control paragraph-tiny\">\n        {{ selectedOption()?.label || placeholder() }}\n      </div>\n      <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n      @if (isOpen()) {\n        <ul class=\"dropdown__options-list\">\n          @for (option of options(); track option.value) {\n            <li\n              class=\"dropdown__option paragraph-tiny\"\n              [class.dropdown__option--selected]=\"value() === option.value\"\n              (click)=\"selectOption(option)\"\n            >\n              {{ option.label }}\n            </li>\n          }\n        </ul>\n      }\n    </div>\n  `,\n  styles: `\n    :host {\n      display: block;\n      position: relative;\n    }\n\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition: transform 0.2s ease, color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 9px 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 9.5px 0 9.5px 9px;\n        cursor: pointer;\n        appearance: none;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 4px);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        list-style: none;\n        padding: 4px 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 200px;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 8px 12px;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 400;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 400;\n          }\n        }\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => DropdownComponent),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class DropdownComponent<T> implements ControlValueAccessor {\n  private readonly elementRef = inject(ElementRef);\n\n  readonly placeholder = input<string>('');\n  readonly options = input<DropdownOption<T>[]>([]);\n  readonly id = input<string>(`app-dropdown-${++nextId}`);\n  readonly ariaLabel = input<string>();\n\n  readonly value = signal<T | null | undefined>(undefined);\n  readonly disabled = model<boolean>(false);\n  readonly isOpen = signal(false);\n\n  readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));\n\n  onChange: (value: T) => void = () => {};\n  onTouched: () => void = () => {};\n\n  @HostListener('document:click', ['$event'])\n  onDocumentClick(event: MouseEvent): void {\n    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.isOpen.set(false);\n    }\n  }\n\n  toggleDropdown(): void {\n    if (!this.disabled()) {\n      this.isOpen.set(!this.isOpen());\n    }\n  }\n\n  selectOption(option: DropdownOption<T>): void {\n    this.value.set(option.value);\n    this.onChange(option.value);\n    this.isOpen.set(false);\n  }\n\n  writeValue(val: T): void {\n    this.value.set(val);\n  }\n\n  registerOnChange(fn: (value: T) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled.set(isDisabled);\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "label",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 20
+                },
+                {
+                    "name": "value",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "T",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        }
+    ],
     "injectables": [],
     "guards": [],
     "interceptors": [],
@@ -134,6 +170,643 @@
             "extends": []
         },
         {
+            "name": "CategoryPage",
+            "id": "component-CategoryPage-b441f4c41cab1d3f5bc416d77429b8da1c9d53323c74f4db37cf6f6aeb9d3d101eee5479e769949e72e7dc055adc0ba7cd6a70d3ec12e9df5dd3642418b89621",
+            "file": "src/app/features/category-page/category-page.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-category-page",
+            "styleUrls": [],
+            "styles": [
+                "\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n  "
+            ],
+            "template": "<app-header></app-header>\n<p>Type de tri: {{ sortType() }}</p>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "sortType",
+                    "defaultValue": "'grouped'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "Header"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { Header } from '@shared/components/header/header';\n\n@Component({\n  selector: 'app-category-page',\n  standalone: true,\n  imports: [Header],\n  template: `\n    <app-header></app-header>\n    <p>Type de tri: {{ sortType() }}</p>\n  `,\n  styles: `\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class CategoryPage {\n  sortType = input<string>('grouped');\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n  \n",
+            "extends": []
+        },
+        {
+            "name": "DropdownComponent",
+            "id": "component-DropdownComponent-6629ab55e5e490600540ff2ec91062c6bcf82e142fb4254083ded72a409af97e619f0ace4f5aa31a8b38640480adc01a6c9cdf83a0d3e43b651755053063c1c3",
+            "file": "src/app/ui/form/dropdown/dropdown.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "app-dropdown",
+            "styleUrls": [],
+            "styles": [
+                "\n    :host {\n      display: block;\n      position: relative;\n    }\n\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition: transform 0.2s ease, color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 9px 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 9.5px 0 9.5px 9px;\n        cursor: pointer;\n        appearance: none;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 4px);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        list-style: none;\n        padding: 4px 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 200px;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 8px 12px;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 400;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 400;\n          }\n        }\n      }\n    }\n  "
+            ],
+            "template": "<div\n  class=\"dropdown__wrapper\"\n  [class.dropdown__wrapper--disabled]=\"disabled()\"\n  [class.dropdown__wrapper--opened]=\"isOpen()\"\n  (click)=\"toggleDropdown()\"\n>\n  <div class=\"dropdown__control paragraph-tiny\">\n    {{ selectedOption()?.label || placeholder() }}\n  </div>\n  <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n  @if (isOpen()) {\n    <ul class=\"dropdown__options-list\">\n      @for (option of options(); track option.value) {\n        <li\n          class=\"dropdown__option paragraph-tiny\"\n          [class.dropdown__option--selected]=\"value() === option.value\"\n          (click)=\"selectOption(option)\"\n        >\n          {{ option.label }}\n        </li>\n      }\n    </ul>\n  }\n</div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "ariaLabel",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 162,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 165,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "id",
+                    "defaultValue": "`app-dropdown-${++nextId}`",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 161,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "options",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "DropdownOption<T>[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 160,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "placeholder",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 159,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 165,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "elementRef",
+                    "defaultValue": "inject(ElementRef)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 157,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "isOpen",
+                    "defaultValue": "signal(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 166,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 170
+                },
+                {
+                    "name": "onTouched",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "function",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 171
+                },
+                {
+                    "name": "selectedOption",
+                    "defaultValue": "computed(() => this.options().find((o) => o.value === this.value()))",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 168,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "value",
+                    "defaultValue": "signal<T | null | undefined>(undefined)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 164,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "onDocumentClick",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 174,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'document:click', ['$event']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "T",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 196,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "T",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 200,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "selectOption",
+                    "args": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 186,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "option",
+                            "type": "DropdownOption<T>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 204,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "toggleDropdown",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 180,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "writeValue",
+                    "args": [
+                        {
+                            "name": "val",
+                            "type": "T",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 192,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "val",
+                            "type": "T",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [
+                {
+                    "name": "document:click",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "argsDecorator": [
+                        "$event"
+                    ],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 174
+                }
+            ],
+            "standalone": false,
+            "imports": [
+                {
+                    "name": "IconComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  HostListener,\n  input,\n  model,\n  signal,\n  inject,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\nlet nextId = 0;\n\nexport interface DropdownOption<T = string> {\n  value: T;\n  label: string;\n}\n\n@Component({\n  selector: 'app-dropdown',\n  imports: [IconComponent],\n  template: `\n    <div\n      class=\"dropdown__wrapper\"\n      [class.dropdown__wrapper--disabled]=\"disabled()\"\n      [class.dropdown__wrapper--opened]=\"isOpen()\"\n      (click)=\"toggleDropdown()\"\n    >\n      <div class=\"dropdown__control paragraph-tiny\">\n        {{ selectedOption()?.label || placeholder() }}\n      </div>\n      <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n      @if (isOpen()) {\n        <ul class=\"dropdown__options-list\">\n          @for (option of options(); track option.value) {\n            <li\n              class=\"dropdown__option paragraph-tiny\"\n              [class.dropdown__option--selected]=\"value() === option.value\"\n              (click)=\"selectOption(option)\"\n            >\n              {{ option.label }}\n            </li>\n          }\n        </ul>\n      }\n    </div>\n  `,\n  styles: `\n    :host {\n      display: block;\n      position: relative;\n    }\n\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition: transform 0.2s ease, color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 9px 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 9.5px 0 9.5px 9px;\n        cursor: pointer;\n        appearance: none;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 4px);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        list-style: none;\n        padding: 4px 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 200px;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 8px 12px;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 400;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 400;\n          }\n        }\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => DropdownComponent),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class DropdownComponent<T> implements ControlValueAccessor {\n  private readonly elementRef = inject(ElementRef);\n\n  readonly placeholder = input<string>('');\n  readonly options = input<DropdownOption<T>[]>([]);\n  readonly id = input<string>(`app-dropdown-${++nextId}`);\n  readonly ariaLabel = input<string>();\n\n  readonly value = signal<T | null | undefined>(undefined);\n  readonly disabled = model<boolean>(false);\n  readonly isOpen = signal(false);\n\n  readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));\n\n  onChange: (value: T) => void = () => {};\n  onTouched: () => void = () => {};\n\n  @HostListener('document:click', ['$event'])\n  onDocumentClick(event: MouseEvent): void {\n    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.isOpen.set(false);\n    }\n  }\n\n  toggleDropdown(): void {\n    if (!this.disabled()) {\n      this.isOpen.set(!this.isOpen());\n    }\n  }\n\n  selectOption(option: DropdownOption<T>): void {\n    this.value.set(option.value);\n    this.onChange(option.value);\n    this.isOpen.set(false);\n  }\n\n  writeValue(val: T): void {\n    this.value.set(val);\n  }\n\n  registerOnChange(fn: (value: T) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled.set(isDisabled);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    :host {\n      display: block;\n      position: relative;\n    }\n\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition: transform 0.2s ease, color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 9px 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 9.5px 0 9.5px 9px;\n        cursor: pointer;\n        appearance: none;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 4px);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        list-style: none;\n        padding: 4px 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 200px;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 8px 12px;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 400;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 400;\n          }\n        }\n      }\n    }\n  \n",
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ]
+        },
+        {
+            "name": "Header",
+            "id": "component-Header-9338ab203bf9b18a4275c04831b7326d59f0d591ee9162c2c4173b9dce41e8e8a8cbf1db6a90abd78eae091460821027a1301500927c5324c30c52f34cb93206",
+            "file": "src/app/shared/components/header/header.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-header",
+            "styleUrls": [],
+            "styles": [
+                "\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 17px 122px;\n      gap: 8px;\n      background-color: white;\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 8px;\n      }\n    }\n  "
+            ],
+            "template": "<header class=\"header\">\n  <h4>Catégories</h4>\n  <nav class=\"header__nav\">\n    <ul>\n      <li>\n        <app-tab [link]=\"'/category/grouped'\">\n          <app-icon name=\"category\" />\n          Groupe de catégorie\n        </app-tab>\n      </li>\n      <li>\n        <app-tab [link]=\"'/category/alpha'\">\n          <app-icon name=\"alphabet\" />\n          Ordre alphabétique\n        </app-tab>\n      </li>\n    </ul>\n  </nav>\n</header>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "Tab"
+                },
+                {
+                    "name": "IconComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { Tab } from '@ui/tab/tab';\nimport { IconComponent } from '@ui/icon/icon';\n\n@Component({\n  selector: 'app-header',\n  standalone: true,\n  imports: [Tab, IconComponent],\n  template: `\n    <header class=\"header\">\n      <h4>Catégories</h4>\n      <nav class=\"header__nav\">\n        <ul>\n          <li>\n            <app-tab [link]=\"'/category/grouped'\">\n              <app-icon name=\"category\" />\n              Groupe de catégorie\n            </app-tab>\n          </li>\n          <li>\n            <app-tab [link]=\"'/category/alpha'\">\n              <app-icon name=\"alphabet\" />\n              Ordre alphabétique\n            </app-tab>\n          </li>\n        </ul>\n      </nav>\n    </header>\n  `,\n  styles: `\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 17px 122px;\n      gap: 8px;\n      background-color: white;\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 8px;\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Header {}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 17px 122px;\n      gap: 8px;\n      background-color: white;\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 8px;\n      }\n    }\n  \n",
+            "extends": []
+        },
+        {
+            "name": "IconComponent",
+            "id": "component-IconComponent-cb1b94fe2db906c01eaebe84c47fd6ba51e5d3eb4e4119c504b778110506e616c7f4fb1df64d5715f2d68e6b3b76a6334ee3fdff137f4e63019ca0803c9e84ef",
+            "file": "src/app/ui/icon/icon.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-icon",
+            "styleUrls": [],
+            "styles": [
+                "\n    :host {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n    }\n\n    .icon-mask {\n      width: 1em;\n      height: 1em;\n      background-color: currentColor;\n      mask-size: contain;\n      mask-position: center;\n      mask-repeat: no-repeat;\n    }\n  "
+            ],
+            "template": "<div\n  class=\"icon-mask\"\n  [style.mask-image]=\"iconUrl()\"\n  [style.-webkit-mask-image]=\"iconUrl()\"\n></div>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 31,
+                    "required": true
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "iconUrl",
+                    "defaultValue": "computed(() => `url(assets/icons/${this.name()}.svg)`)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 32
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, input, computed } from '@angular/core';\n\n@Component({\n  selector: 'app-icon',\n  standalone: true,\n  template: `\n    <div\n      class=\"icon-mask\"\n      [style.mask-image]=\"iconUrl()\"\n      [style.-webkit-mask-image]=\"iconUrl()\"\n    ></div>\n  `,\n  styles: `\n    :host {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n    }\n\n    .icon-mask {\n      width: 1em;\n      height: 1em;\n      background-color: currentColor;\n      mask-size: contain;\n      mask-position: center;\n      mask-repeat: no-repeat;\n    }\n  `,\n})\nexport class IconComponent {\n  name = input.required<string>();\n  iconUrl = computed(() => `url(assets/icons/${this.name()}.svg)`);\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    :host {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n    }\n\n    .icon-mask {\n      width: 1em;\n      height: 1em;\n      background-color: currentColor;\n      mask-size: contain;\n      mask-position: center;\n      mask-repeat: no-repeat;\n    }\n  \n",
+            "extends": []
+        },
+        {
             "name": "Pill",
             "id": "component-Pill-76a8ddbff5839ccd83f835c95310d1b6b797bcca662af0944db915282748fc90ad3f890a014a1b5e13a3c628c910a08e046bc8593b06f17c348f128e7e0f2c47",
             "file": "src/app/ui/pill/pill.ts",
@@ -189,7 +862,7 @@
         },
         {
             "name": "Tab",
-            "id": "component-Tab-f995c9830218d9f4d44b0536fb98a71b4b4e878fa7c70d7a7a56273df12c2344882fb04603ad99db40de22be7981894cd27b4dcd61e1480b6cfd02e5138f0bd5",
+            "id": "component-Tab-73fd1780754a3f276f8276fd1ba155d3250a204104ba5fdc1e7f0412950c12cfe210612abadcd0408bfc9987314a38e7d32e1d7fc6bda60ae755369b537f1385",
             "file": "src/app/ui/tab/tab.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -202,7 +875,7 @@
             "styles": [
                 "\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  "
             ],
-            "template": "<a class=\"tab tab-text\" [routerLink]=\"[link()]\" routerLinkActive=\"tab__active\">\n  <ng-content></ng-content>\n</a>\n",
+            "template": "<a\n  class=\"tab tab-text\"\n  [routerLink]=\"[link()]\"\n  routerLinkActive=\"tab__active\"\n  [routerLinkActiveOptions]=\"{ exact: true }\"\n>\n  <ng-content></ng-content>\n</a>\n",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -216,7 +889,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 35,
+                    "line": 40,
                     "modifierKind": [
                         148
                     ],
@@ -242,11 +915,332 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { RouterLink, RouterLinkActive } from '@angular/router';\n\n@Component({\n  selector: 'app-tab',\n  imports: [RouterLink, RouterLinkActive],\n  standalone: true,\n  template: `\n    <a class=\"tab tab-text\" [routerLink]=\"[link()]\" routerLinkActive=\"tab__active\">\n      <ng-content></ng-content>\n    </a>\n  `,\n  styles: `\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Tab {\n  readonly link = input<string>('');\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { RouterLink, RouterLinkActive } from '@angular/router';\n\n@Component({\n  selector: 'app-tab',\n  imports: [RouterLink, RouterLinkActive],\n  standalone: true,\n  template: `\n    <a\n      class=\"tab tab-text\"\n      [routerLink]=\"[link()]\"\n      routerLinkActive=\"tab__active\"\n      [routerLinkActiveOptions]=\"{ exact: true }\"\n    >\n      <ng-content></ng-content>\n    </a>\n  `,\n  styles: `\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Tab {\n  readonly link = input<string>('');\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 8px;\n      padding: 8px;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  \n",
             "extends": []
+        },
+        {
+            "name": "TextInput",
+            "id": "component-TextInput-3377f3e224a94a57bbdc228e870b5e25768c63c6d12f7a277bb10a55562da52137b28e8aa2c75903850f93401c45f7a8061e61d839db6d09cb6e12e4e7f3f105",
+            "file": "src/app/ui/form/text-input/text-input.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": ")"
+                }
+            ],
+            "selector": "app-text-input",
+            "styleUrls": [],
+            "styles": [
+                "\n    .input-text {\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 10.5px 9px;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 8px;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  "
+            ],
+            "template": "<label class=\"input-text__wrapper\" [for]=\"id\">\n  @if (iconName(); as icon) {\n    <app-icon [name]=\"icon\" class=\"input-text__icon\" aria-hidden=\"true\"></app-icon>\n  }\n  <input\n    type=\"text\"\n    [id]=\"id\"\n    class=\"input-text__control paragraph-tiny\"\n    [placeholder]=\"placeholder()\"\n    [value]=\"value\"\n    (input)=\"onInput($event)\"\n    [disabled]=\"disabled\"\n  />\n</label>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "iconName",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 79,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "placeholder",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 80,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 83
+                },
+                {
+                    "name": "id",
+                    "defaultValue": "'text-input-' + Math.random().toString(9)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 84,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "onChange",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown | undefined",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 86
+                },
+                {
+                    "name": "onTouched",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown | undefined",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 87
+                },
+                {
+                    "name": "value",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 82
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "onInput",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 89,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnChange",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 101,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [
+                                {
+                                    "name": "value",
+                                    "type": "string",
+                                    "optional": false,
+                                    "dotDotDotToken": false,
+                                    "deprecated": false,
+                                    "deprecationMessage": ""
+                                }
+                            ],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "registerOnTouched",
+                    "args": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": []
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 105,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "fn",
+                            "type": "function",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "function": [],
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "setDisabledState",
+                    "args": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 109,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "isDisabled",
+                            "type": "boolean",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "writeValue",
+                    "args": [
+                        {
+                            "name": "value",
+                            "type": "unknown",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 97,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "type": "unknown",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": false,
+            "imports": [
+                {
+                    "name": "IconComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\n@Component({\n  selector: 'app-text-input',\n  imports: [IconComponent],\n  template: `\n    <label class=\"input-text__wrapper\" [for]=\"id\">\n      @if (iconName(); as icon) {\n        <app-icon [name]=\"icon\" class=\"input-text__icon\" aria-hidden=\"true\"></app-icon>\n      }\n      <input\n        type=\"text\"\n        [id]=\"id\"\n        class=\"input-text__control paragraph-tiny\"\n        [placeholder]=\"placeholder()\"\n        [value]=\"value\"\n        (input)=\"onInput($event)\"\n        [disabled]=\"disabled\"\n      />\n    </label>\n  `,\n  styles: `\n    .input-text {\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 10.5px 9px;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 8px;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => TextInput),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TextInput implements ControlValueAccessor {\n  readonly iconName = input<string | null>(null);\n  readonly placeholder = input<string>('');\n\n  value = '';\n  disabled = false;\n  readonly id = 'text-input-' + Math.random().toString(9);\n\n  onChange: ((value: string) => void) | undefined;\n  onTouched: (() => void) | undefined;\n\n  onInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.value = target.value;\n    if (this.onChange) {\n      this.onChange(this.value);\n    }\n  }\n\n  writeValue(value: unknown): void {\n    this.value = typeof value === 'string' ? value : '';\n  }\n\n  registerOnChange(fn: (value: string) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled = isDisabled;\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    .input-text {\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 10.5px 9px;\n        border: 1px solid var(--separator, #e0e0e0);\n        border-radius: 4px;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 8px;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  \n",
+            "extends": [],
+            "implements": [
+                "ControlValueAccessor"
+            ]
         }
     ],
     "modules": [],
@@ -260,7 +1254,17 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "ApplicationConfig",
-                "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+                "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes, withComponentInputBinding()),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+            },
+            {
+                "name": "nextId",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/ui/form/dropdown/dropdown.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "number",
+                "defaultValue": "0"
             },
             {
                 "name": "routes",
@@ -270,7 +1274,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Routes",
-                "defaultValue": "[]"
+                "defaultValue": "[\n  { path: '', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category/:sortType', component: CategoryPage },\n]"
             }
         ],
         "functions": [],
@@ -286,7 +1290,19 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplicationConfig",
-                    "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+                    "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes, withComponentInputBinding()),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+                }
+            ],
+            "src/app/ui/form/dropdown/dropdown.ts": [
+                {
+                    "name": "nextId",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/ui/form/dropdown/dropdown.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "defaultValue": "0"
                 }
             ],
             "src/app/app.routes.ts": [
@@ -298,7 +1314,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Routes",
-                    "defaultValue": "[]"
+                    "defaultValue": "[\n  { path: '', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category/:sortType', component: CategoryPage },\n]"
                 }
             ]
         },
@@ -309,7 +1325,14 @@
     "routes": {
         "name": "<root>",
         "kind": "module",
-        "children": []
+        "children": [
+            {
+                "name": "CategoryPage",
+                "kind": "component",
+                "path": "category/:sortType",
+                "filename": "src/app/app.routes.ts"
+            }
+        ]
     },
     "coverage": {
         "count": 0,
@@ -345,12 +1368,76 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/features/category-page/category-page.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "CategoryPage",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/components/header/header.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Header",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/ui/card/card.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "Card",
                 "coveragePercent": 0,
                 "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/form/dropdown/dropdown.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "DropdownComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/21",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/form/dropdown/dropdown.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "DropdownOption",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/form/dropdown/dropdown.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "nextId",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/form/text-input/text-input.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TextInput",
+                "coveragePercent": 0,
+                "coverageCount": "0/13",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/icon/icon.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "IconComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
                 "status": "low"
             },
             {

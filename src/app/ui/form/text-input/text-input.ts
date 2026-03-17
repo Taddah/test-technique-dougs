@@ -2,18 +2,17 @@ import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '@ui/icon/icon';
 
-// ControlValueAccessor mais ça reste gros pour un simple champ texte,
-// un signal bidirectionnel (model) pourrait aussi faire l'affaire
 @Component({
   selector: 'app-text-input',
   imports: [IconComponent],
   template: `
-    <label class="input-text__wrapper">
+    <label class="input-text__wrapper" [for]="id">
       @if (iconName(); as icon) {
         <app-icon [name]="icon" class="input-text__icon" aria-hidden="true"></app-icon>
       }
       <input
         type="text"
+        [id]="id"
         class="input-text__control paragraph-tiny"
         [placeholder]="placeholder()"
         [value]="value"
@@ -28,9 +27,9 @@ import { IconComponent } from '@ui/icon/icon';
         display: flex;
         align-items: center;
         width: 100%;
-        padding: 10.5px 9px;
-        border: 1px solid var(--separator, #e0e0e0);
-        border-radius: 4px;
+        padding: 0.6563rem 0.5625rem;
+        border: 0.0625rem solid var(--separator, #e0e0e0);
+        border-radius: 0.25rem;
         background-color: var(--background, #ffffff);
         transition:
           border-color 0.2s ease,
@@ -48,7 +47,7 @@ import { IconComponent } from '@ui/icon/icon';
 
       &__icon {
         flex-shrink: 0;
-        margin-right: 8px;
+        margin-right: 0.5rem;
         color: var(--text-color, inherit);
         transition: color 0.2s ease;
         display: flex;
@@ -82,6 +81,7 @@ export class TextInput implements ControlValueAccessor {
 
   value = '';
   disabled = false;
+  readonly id = 'text-input-' + Math.random().toString(9);
 
   onChange: ((value: string) => void) | undefined;
   onTouched: (() => void) | undefined;

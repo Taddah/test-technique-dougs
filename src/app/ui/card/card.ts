@@ -13,9 +13,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     .card {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      padding: 16px;
-      border: 1px solid var(--separator);
+      gap: 0.25rem;
+      padding: 1rem;
+      border: 0.0625rem solid var(--separator);
 
       &__title {
         color: var(--brand-diante);

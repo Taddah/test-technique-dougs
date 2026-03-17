@@ -31,8 +31,8 @@ import { IconComponent } from '@ui/icon/icon';
     .header {
       position: sticky;
       display: flex;
-      padding: 17px 122px;
-      gap: 8px;
+      padding: 1.0625rem 7.625rem;
+      gap: 0.5rem;
       background-color: white;
 
       ul {
@@ -49,7 +49,7 @@ import { IconComponent } from '@ui/icon/icon';
         display: flex;
         align-items: center;
         padding: 0;
-        gap: 8px;
+        gap: 0.5rem;
       }
     }
   `,

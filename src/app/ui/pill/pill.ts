@@ -12,10 +12,10 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     .pill {
       display: inline-flex;
       align-items: center;
-      padding: 2px 12px;
-      border-radius: 16px;
+      padding: 0.125rem 0.75rem;
+      border-radius: 1rem;
       width: fit-content;
-      height: 20px;
+      height: 1.25rem;
       box-sizing: border-box;
 
       &__blue {
