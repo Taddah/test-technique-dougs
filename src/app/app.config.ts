@@ -4,11 +4,14 @@ import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { provideStore } from '@ngxs/store';
 
 import { routes } from './app.routes';
+import { CategoryState } from '@store/category/category.state';
+import { provideHttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
-    provideStore([], withNgxsLoggerPlugin()),
+    provideHttpClient(),
+    provideStore([CategoryState], withNgxsLoggerPlugin()),
   ],
 };
