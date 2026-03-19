@@ -36,7 +36,6 @@ import { IconComponent } from '@ui/icon/icon';
           border-color 0.2s ease,
           box-shadow 0.2s ease;
         cursor: text;
-        box-sizing: border-box;
 
         &:focus-within {
           border-color: var(--cerulean);

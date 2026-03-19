@@ -62,7 +62,6 @@ export interface DropdownOption<T = string> {
           box-shadow 0.2s ease;
         cursor: pointer;
         height: 100%;
-        box-sizing: border-box;
 
         &--disabled {
           opacity: 0.5;

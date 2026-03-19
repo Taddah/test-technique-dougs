@@ -1,4 +1,6 @@
 @use 'typography';
+@use 'animations';
+@use 'reset';
 
 :root {
   --light-blue: #f1f7fc;
@@ -10,6 +12,15 @@
   --light-yellow: #fff5bf;
   --yellow: #faa11c;
 
+  --light-purple: #f3e5ff;
+  --purple: #b366ff;
+
+  --light-pink: #ffe5f0;
+  --pink: #ff66b3;
+
+  --light-green: #e5ffea;
+  --green: #66cc66;
+
   --separator: #dce4ed;
   --brand-diante: #001a25;
   --grey-barth: #636970;
@@ -18,7 +29,6 @@
 }
 
 body {
-  height: 100vh;
-  overflow: hidden;
-  margin: 0;
+  min-height: 100vh;
+  overflow-y: scroll;
 }

@@ -6,7 +6,6 @@
 }
 
 .paragraph-tiny {
-  font-family: 'Open Sans';
   font-weight: 400;
   font-size: 0.75rem;
   line-height: normal;
@@ -14,14 +13,12 @@
 }
 
 .paragraph-semi-bold {
-  font-family: 'Eina-SemiBold';
   font-size: 0.875rem;
   line-height: 1.2;
   letter-spacing: 0;
 }
 
 .paragraph-small {
-  font-family: 'Open Sans';
   font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.2;
@@ -29,7 +26,6 @@
 }
 
 .tab-text {
-  font-family: 'Open Sans';
   font-weight: 600;
   font-size: 0.75rem;
   line-height: 1.2;
@@ -39,22 +35,23 @@
 p {
   display: flex;
   align-items: center;
-  margin: 0;
 }
 
 h1,
 h2,
 h3,
-h4,
 h5,
-h6 {
+h6,
+p {
+  font-family: 'Open Sans', sans-serif;
   margin: 0;
 }
 
 h4 {
-  font-family: 'Eina-SemiBold';
+  font-family: 'Eina-SemiBold', sans-serif;
   font-weight: 400;
   font-size: 1.375rem;
   line-height: 1.2;
   letter-spacing: 0;
+  margin: 0;
 }
