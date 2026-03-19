@@ -9,7 +9,8 @@
       "@features/*": ["src/app/features/*"],
       "@shared/*": ["src/app/shared/*"],
       "@store/*": ["src/app/store/*"],
-      "@ui/*": ["src/app/ui/*"]
+      "@ui/*": ["src/app/ui/*"],
+      "@models/*": ["src/app/core/models/*"]
     },
     "strict": true,
     "noImplicitOverride": true,
