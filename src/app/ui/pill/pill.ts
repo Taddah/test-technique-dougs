@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { PillColor } from '@ui/pill/pill-color';
 
 @Component({
   selector: 'app-pill',
@@ -16,7 +17,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       border-radius: 1rem;
       width: fit-content;
       height: 1.25rem;
-      box-sizing: border-box;
 
       &__blue {
         background-color: var(--light-blue);
@@ -32,10 +32,25 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         background-color: var(--light-yellow);
         color: var(--yellow);
       }
+
+      &__purple {
+        background-color: var(--light-purple);
+        color: var(--purple);
+      }
+
+      &__pink {
+        background-color: var(--light-pink);
+        color: var(--pink);
+      }
+
+      &__green {
+        background-color: var(--light-green);
+        color: var(--green);
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Pill {
-  readonly color = input<'blue' | 'red' | 'yellow'>('blue');
+  readonly color = input<PillColor>('blue');
 }
