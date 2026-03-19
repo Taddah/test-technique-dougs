@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Action, State, StateContext } from '@ngxs/store';
 import { catchError, tap } from 'rxjs/operators';
 import { Category, VisibleCategory } from '@core/models/category.model';
-import { CategoryService } from '@core/services/category.webservice';
+import { CategoryWebService } from '@core/webservices/category.webservice';
 import { FetchCategoriesData } from '@store/category/category.actions';
 import { forkJoin, Observable, of } from 'rxjs';
 
@@ -24,7 +24,7 @@ export interface CategoryStateModel {
 })
 @Injectable()
 export class CategoryState {
-  private readonly categoryService = inject(CategoryService);
+  private readonly categoryWebService = inject(CategoryWebService);
 
   @Action(FetchCategoriesData)
   fetchAllCategoriesAndGroups(ctx: StateContext<CategoryStateModel>): Observable<{
@@ -34,8 +34,8 @@ export class CategoryState {
     ctx.patchState({ isLoading: true, error: null });
 
     return forkJoin({
-      all: this.categoryService.getAllCategories(),
-      visible: this.categoryService.getVisibleCategories(),
+      all: this.categoryWebService.getAllCategories(),
+      visible: this.categoryWebService.getVisibleCategories(),
     }).pipe(
       tap(({ all, visible }) => {
         const visibleCategories: Category[] = all.filter((category) =>

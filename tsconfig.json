@@ -10,7 +10,8 @@
       "@shared/*": ["src/app/shared/*"],
       "@store/*": ["src/app/store/*"],
       "@ui/*": ["src/app/ui/*"],
-      "@models/*": ["src/app/core/models/*"]
+      "@models/*": ["src/app/core/models/*"],
+      "@environment/*": ["src/environments/*"]
     },
     "strict": true,
     "noImplicitOverride": true,
