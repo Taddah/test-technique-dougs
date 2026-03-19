@@ -3,7 +3,7 @@ import { convertToParamMap, ActivatedRoute, Router, ParamMap } from '@angular/ro
 import { Store } from '@ngxs/store';
 import { BehaviorSubject } from 'rxjs';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { CategoryPageService } from '@features/category-page/category-page.service';
+import { CategoryPageService } from '@features/category-page/category-page-service/category-page.service';
 import { CategorySelectors } from '@store/category/category.selectors';
 import { Category, CategoryGroup } from '@core/models/category.model';
 import { signal } from '@angular/core';
