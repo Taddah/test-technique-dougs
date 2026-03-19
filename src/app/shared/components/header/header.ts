@@ -28,14 +28,24 @@ import { IconComponent } from '@ui/icon/icon';
     </header>
   `,
   styles: `
+    @use 'variables' as vars;
     .header {
       position: sticky;
-      display: flex;
-      padding: 0.9375rem 7.625rem;
-      gap: 0.5rem;
-      background-color: white;
       top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       width: 100%;
+      z-index: 100;
+      background-color: white;
+
+      padding: 0.75rem 1rem;
+      gap: 0.5rem;
+
+      @media (min-width: vars.$breakpoint-desktop) {
+        padding: 0.9375rem 7.625rem;
+        justify-content: flex-start;
+      }
 
       li {
         display: inline-block;

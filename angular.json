@@ -31,7 +31,10 @@
               "src/assets"
             ],
             "styles": ["src/styles/styles.scss"],
-            "polyfills": ["zone.js"]
+            "polyfills": ["zone.js"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles"]
+            }
           },
           "configurations": {
             "production": {
