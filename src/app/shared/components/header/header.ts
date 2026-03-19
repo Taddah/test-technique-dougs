@@ -7,7 +7,7 @@ import { IconComponent } from '@ui/icon/icon';
   standalone: true,
   imports: [Tab, IconComponent],
   template: `
-    <header class="header">
+    <header class="header" role="banner">
       <h4>Catégories</h4>
       <nav class="header__nav">
         <ul>
@@ -36,12 +36,6 @@ import { IconComponent } from '@ui/icon/icon';
       background-color: white;
       top: 0;
       width: 100%;
-
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
 
       li {
         display: inline-block;
