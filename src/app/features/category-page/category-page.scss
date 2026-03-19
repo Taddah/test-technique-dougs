@@ -84,21 +84,3 @@
     }
   }
 }
-
-.footer {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  width: 100%;
-  background-color: white;
-  z-index: 10;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
-  padding: 1rem;
-  justify-content: center;
-
-  @media (min-width: vars.$breakpoint-desktop) {
-    padding: 0.7813rem 7.625rem;
-    justify-content: flex-end;
-  }
-}

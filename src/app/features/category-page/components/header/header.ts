@@ -3,7 +3,7 @@ import { Tab } from '@ui/tab/tab';
 import { Icon } from '@ui/icon/icon';
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-category-header',
   standalone: true,
   imports: [Tab, Icon],
   template: `
@@ -29,16 +29,20 @@ import { Icon } from '@ui/icon/icon';
   `,
   styles: `
     @use 'variables' as vars;
-    .header {
+
+    :host {
       position: sticky;
       top: 0;
+      width: 100%;
+      z-index: 100;
+    }
+
+    .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100%;
-      z-index: 100;
-      background-color: white;
 
+      background-color: white;
       padding: 0.75rem 1rem;
       gap: 0.5rem;
 
@@ -61,4 +65,4 @@ import { Icon } from '@ui/icon/icon';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Header {}
+export class CategoryHeader {}
