@@ -14,7 +14,7 @@ import { getPillColor } from '@ui/pill/pill-color';
         <app-pill class="card__pill" [color]="color">{{ tag() }}</app-pill>
       }
 
-      <h6 class="paragraph-semi-bold card__title">{{ title() }}</h6>
+      <h6 class="h6-semi-bold card__title">{{ title() }}</h6>
       <p class="paragraph-small card__description" [innerHTML]="description() | safeHtml"></p>
     </div>
   `,

@@ -18,6 +18,14 @@
   letter-spacing: 0;
 }
 
+.h6-semi-bold {
+  font-family: 'Eina-SemiBold', sans-serif !important;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
 .paragraph-small {
   font-weight: 400;
   font-size: 0.875rem;
@@ -38,7 +46,7 @@ p {
 }
 
 h4 {
-  font-family: 'Eina-SemiBold', sans-serif;
+  font-family: 'Eina-SemiBold', sans-serif !important;
   font-weight: 400;
   font-size: 1.375rem;
   line-height: 1.2;
