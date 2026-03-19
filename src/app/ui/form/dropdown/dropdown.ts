@@ -27,18 +27,30 @@ export interface DropdownOption<T = string> {
       [class.dropdown__wrapper--disabled]="disabled()"
       [class.dropdown__wrapper--opened]="isOpen()"
       (click)="toggleDropdown()"
+      (keydown.enter)="toggleDropdown()"
+      (keydown.space)="toggleDropdown(); $event.preventDefault()"
+      role="combobox"
+      [attr.aria-expanded]="isOpen()"
+      aria-haspopup="listbox"
+      [attr.aria-controls]="isOpen() ? dropdownId : null"
+      [attr.aria-disabled]="disabled()"
+      [attr.aria-label]="ariaLabel() || placeholder()"
+      [tabindex]="disabled() ? -1 : 0"
     >
       <div class="dropdown__control paragraph-tiny">
         {{ selectedOption()?.label || placeholder() }}
       </div>
       <app-icon name="arrow" class="dropdown__icon" aria-hidden="true"></app-icon>
+
       @if (isOpen()) {
-        <ul class="dropdown__options-list">
+        <ul [id]="dropdownId" class="dropdown__options-list" role="listbox">
           @for (option of options(); track option.value) {
             <li
               class="dropdown__option paragraph-tiny"
               [class.dropdown__option--selected]="value() === option.value"
               (click)="selectOption(option)"
+              role="option"
+              [attr.aria-selected]="value() === option.value"
             >
               {{ option.label }}
             </li>
@@ -54,7 +66,7 @@ export interface DropdownOption<T = string> {
         display: flex;
         align-items: center;
         width: 100%;
-        border: 0.0625rem solid var(--separator, #e0e0e0);
+        border: 1px solid var(--separator, #e0e0e0);
         border-radius: 0.25rem;
         background-color: var(--background, #ffffff);
         transition:
@@ -62,6 +74,11 @@ export interface DropdownOption<T = string> {
           box-shadow 0.2s ease;
         cursor: pointer;
         height: 100%;
+
+        &:focus-visible {
+          outline: 2px solid var(--cerulean);
+          outline-offset: 2px;
+        }
 
         &--disabled {
           opacity: 0.5;
@@ -99,6 +116,9 @@ export interface DropdownOption<T = string> {
         outline: none;
         background: transparent;
         padding: 0.5938rem 0 0.5938rem 0.5625rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       &__options-list {
@@ -124,7 +144,6 @@ export interface DropdownOption<T = string> {
 
         &:hover {
           background-color: #f5f5f5;
-          font-weight: 500;
         }
 
         &--selected {
@@ -160,7 +179,7 @@ export class DropdownComponent<T> implements ControlValueAccessor {
 
   readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));
 
-  readonly id = 'dropdown-' + Math.random().toString(9);
+  readonly dropdownId = 'listbox-' + Math.random().toString(36).substring(2, 9);
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onChange: (value: T) => void = () => {};
