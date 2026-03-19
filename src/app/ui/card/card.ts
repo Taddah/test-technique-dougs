@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { SafeHtmlPipe } from '@shared/pipes/safe-html/safe-html-pipe';
 import { Pill } from '@ui/pill/pill';
 import { getPillColor } from '@ui/pill/pill-color';
 
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [Pill],
+  imports: [Pill, SafeHtmlPipe],
   template: `
     <div class="card" [class.card__selected]="selected()">
       @let color = computedTagColor();
@@ -14,7 +15,7 @@ import { getPillColor } from '@ui/pill/pill-color';
       }
 
       <h6 class="paragraph-semi-bold card__title">{{ title() }}</h6>
-      <p class="paragraph-small card__description">{{ description() }}</p>
+      <p class="paragraph-small card__description" [innerHTML]="description() | safeHtml"></p>
     </div>
   `,
   styles: `
@@ -40,6 +41,7 @@ import { getPillColor } from '@ui/pill/pill-color';
       }
 
       &__description {
+        display: inline;
         color: var(--grey-barth);
       }
 
