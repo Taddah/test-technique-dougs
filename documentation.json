@@ -2,13 +2,103 @@
     "pipes": [],
     "interfaces": [
         {
+            "name": "CategoryQueryParams",
+            "id": "interface-CategoryQueryParams-bb5d832555a19eac12c102e39e1e567ffda2435ebdd7e7007bca1945959ddc2223a8579c6b680f354fecdc03c33c1c7dd78e50d0d0e1703d686111efc6370139",
+            "file": "src/app/features/category-page/category-page.service.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { computed, inject, Injectable, Signal } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { ActivatedRoute, Router } from '@angular/router';\nimport { Category, CategoryGroup, CategoryGroupWithPillColor } from '@core/models/category.model';\nimport { Store } from '@ngxs/store';\nimport { CategorySelectors } from '@store/category/category.selectors';\nimport { CategoryState } from '@store/category/category.state';\nimport { DropdownOption } from '@ui/form/dropdown/dropdown';\nimport { getPillColor } from '@ui/pill/pill-color';\nimport { map } from 'rxjs';\n\ninterface CategoryQueryParams {\n  search: string | null;\n  group: number | null;\n}\n\n@Injectable({\n  providedIn: 'root',\n})\nexport class CategoryPageService {\n  readonly #store = inject(Store);\n  readonly #route = inject(ActivatedRoute);\n  readonly #router = inject(Router);\n\n  readonly #categories: Signal<Category[]> = this.#store.selectSignal(\n    CategorySelectors.visibleCategories,\n  );\n  readonly #categoriesGroup: Signal<CategoryGroup[]> = this.#store.selectSignal(\n    CategorySelectors.categoryGroups,\n  );\n  readonly isLoading = this.#store.selectSignal(CategorySelectors.isLoading);\n  readonly error = this.#store.selectSignal(CategorySelectors.error);\n\n\n  readonly #queryParams = toSignal(\n    this.#route.queryParamMap.pipe(\n      map((params) => {\n        return {\n          search: params.get('search'),\n          group: params.get('group') ? Number(params.get('group')) : null,\n        };\n      }),\n    ),\n  );\n\n  public addFiltersToQueryParams(search: string | null | undefined, group: number | null): void {\n    this.#router.navigate([], {\n      relativeTo: this.#route,\n      queryParams: {\n        search,\n        group,\n      },\n      queryParamsHandling: 'merge',\n    });\n  }\n\n  public getCategoriesByAlphabet = computed(() => {\n    const categories: Category[] = this.#categories();\n    const queryParams = this.#queryParams();\n    categories.sort((a: Category, b: Category) => a.wording.localeCompare(b.wording));\n\n    let sortedCategories = [...categories].sort((a, b) => a.wording.localeCompare(b.wording));\n\n    return this.#filterCategoriesByQueryParams(sortedCategories, queryParams);\n  });\n\n  public getCategoriesGrouped = computed(() => {\n    let categories: Category[] = this.#categories();\n    const queryParams = this.#queryParams();\n    const categoriesByGroup = new Map<CategoryGroupWithPillColor, Category[]>();\n\n    let filteredCategories = this.#filterCategoriesByQueryParams(categories, queryParams);\n\n    filteredCategories.forEach((category: Category) => {\n      const currentGroupId = category.group?.id ?? 0;\n      let groupKey = Array.from(categoriesByGroup.keys()).find((k) => k.id === currentGroupId);\n\n      if (!groupKey) {\n        groupKey = category.group\n          ? { ...category.group, pillColor: getPillColor(category.group.color) }\n          : { id: 0, name: 'Sans groupe', color: '', pillColor: getPillColor('') };\n\n        categoriesByGroup.set(groupKey, []);\n      }\n\n      categoriesByGroup.get(groupKey)!.push(category);\n    });\n\n    return categoriesByGroup;\n  });\n\n  public dropdownOptions: Signal<DropdownOption[]> = computed(() => {\n    const categoriesGroup = this.#categoriesGroup();\n    if (!categoriesGroup) return [];\n\n    const options = categoriesGroup\n      .map((group: CategoryGroup) => {\n        return {\n          value: group.id.toString(),\n          label: group.name,\n        } as DropdownOption;\n      })\n      .sort((a: DropdownOption, b: DropdownOption) => a.label.localeCompare(b.label));\n\n    options.unshift({ value: '', label: 'Tous les groupes de catégories' } as DropdownOption);\n    return options;\n  });\n\n  #filterCategoriesByQueryParams(\n    categories: Category[],\n    queryParams: CategoryQueryParams | undefined,\n  ): Category[] {\n    if (!queryParams) return categories;\n    let filteredCategories = categories;\n\n    if (queryParams.group) {\n      filteredCategories = this.#filterCategoriesByGroup(filteredCategories, queryParams.group);\n    }\n\n    if (queryParams.search) {\n      filteredCategories = this.#filterCategoriesBySearch(filteredCategories, queryParams.search);\n    }\n\n    return filteredCategories;\n  }\n\n  #filterCategoriesByGroup(categories: Category[], groupId: number): Category[] {\n    return categories.filter((category) => category.group?.id === groupId);\n  }\n\n  #filterCategoriesBySearch(categories: Category[], search: string): Category[] {\n  if (!search || search.trim() === '') return categories;\n\n  const searchTerms = search.toLowerCase().trim().split(/\\s+/);\n\n  return categories.filter(category => {\n    const wordingWords = category.wording.toLocaleLowerCase().trim().split(/[\\s-']/);\n    return searchTerms.every(searchTerm => {\n      return wordingWords.some(word => word.startsWith(searchTerm));\n      \n    });\n  });\n}\n}\n",
+            "properties": [
+                {
+                    "name": "group",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 14
+                },
+                {
+                    "name": "search",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        },
+        {
+            "name": "CategoryStateModel",
+            "id": "interface-CategoryStateModel-1ebcde6897235599ab5cac7c49e54711dc845dc87d26de29d72b3d36f8afd330bb3135a4ac099d7deb0ba406f4084c22994961597bf9dc6bdbdad7b194b6c68a",
+            "file": "src/app/store/category/category.state.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { Injectable, inject } from '@angular/core';\nimport { Action, State, StateContext } from '@ngxs/store';\nimport { catchError, tap } from 'rxjs/operators';\nimport { Category, CategoryGroup } from '@core/models/category.model';\nimport { CategoryService } from '@core/services/category.webservice';\nimport { FetchCategoriesData } from '@store/category/category.actions';\nimport { forkJoin, of } from 'rxjs';\n\nexport interface CategoryStateModel {\n  allCategories: Category[];\n  visibleCategories: Category[];\n  isLoading: boolean;\n  error: string | null;\n}\n\n@State<CategoryStateModel>({\n  name: 'categories',\n  defaults: {\n    allCategories: [],\n    visibleCategories: [],\n    isLoading: false,\n    error: null,\n  },\n})\n@Injectable()\nexport class CategoryState {\n  private readonly categoryService = inject(CategoryService);\n\n  @Action(FetchCategoriesData)\n  fetchAllCategoriesAndGroups(ctx: StateContext<CategoryStateModel>) {\n    ctx.patchState({ isLoading: true, error: null });\n\n    return forkJoin({\n      all: this.categoryService.getAllCategories(),\n      visible: this.categoryService.getVisibleCategories(),\n    }).pipe(\n      tap(({ all, visible }) => {\n        const visibleCategories: Category[] = all.filter((category) =>\n          visible.some((vc) => vc.id === category.id),\n        );\n        ctx.patchState({\n          allCategories: all,\n          visibleCategories,\n          isLoading: false,\n        });\n      }),\n      catchError(() => {\n        ctx.patchState({ isLoading: false, error: 'Erreur lors du chargement des catégories' });\n       return of(null)\n      }),\n    );\n  }\n}\n",
+            "properties": [
+                {
+                    "name": "allCategories",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Category[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 10
+                },
+                {
+                    "name": "error",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | null",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                },
+                {
+                    "name": "isLoading",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 12
+                },
+                {
+                    "name": "visibleCategories",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Category[]",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 11
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 172,
+            "methods": [],
+            "extends": []
+        },
+        {
             "name": "DropdownOption",
-            "id": "interface-DropdownOption-a699c0882a3dd1afa83aa84eff92ab19726c5fed5e5e1f47f6725900ea2ca2322238182a1ab7fd7b63b84f4621960126f053d83cff02d2ac0acbdcbd3b501b96",
+            "id": "interface-DropdownOption-d71a24a182e83083d2d2608d1898dcf3dccd70034657eae0c19dbba592cb0df6ddd5bd281ea7f52792d69fa892a124745101dc95e27d21eaadcdab54f1d2dc63",
             "file": "src/app/ui/form/dropdown/dropdown.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  HostListener,\n  input,\n  model,\n  signal,\n  inject,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\nexport interface DropdownOption<T = string> {\n  value: T;\n  label: string;\n}\n\n@Component({\n  selector: 'app-dropdown',\n  imports: [IconComponent],\n  template: `\n    <div\n      class=\"dropdown__wrapper\"\n      [class.dropdown__wrapper--disabled]=\"disabled()\"\n      [class.dropdown__wrapper--opened]=\"isOpen()\"\n      (click)=\"toggleDropdown()\"\n    >\n      <div class=\"dropdown__control paragraph-tiny\">\n        {{ selectedOption()?.label || placeholder() }}\n      </div>\n      <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n      @if (isOpen()) {\n        <ul class=\"dropdown__options-list\">\n          @for (option of options(); track option.value) {\n            <li\n              class=\"dropdown__option paragraph-tiny\"\n              [class.dropdown__option--selected]=\"value() === option.value\"\n              (click)=\"selectOption(option)\"\n            >\n              {{ option.label }}\n            </li>\n          }\n        </ul>\n      }\n    </div>\n  `,\n  styles: `\n    .dropdown {\n\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => DropdownComponent),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class DropdownComponent<T> implements ControlValueAccessor {\n  private readonly elementRef = inject(ElementRef);\n\n  readonly placeholder = input<string>('');\n  readonly options = input<DropdownOption<T>[]>([]);\n  readonly ariaLabel = input<string>();\n  readonly disabled = model<boolean>(false);\n\n  readonly value = signal<T | null | undefined>(undefined);\n  readonly isOpen = signal(false);\n\n  readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));\n\n  readonly id = 'dropdown-' + Math.random().toString(9);\n\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onChange: (value: T) => void = () => {};\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onTouched: () => void = () => {};\n\n  @HostListener('document:click', ['$event'])\n  onDocumentClick(event: MouseEvent): void {\n    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.isOpen.set(false);\n    }\n  }\n\n  toggleDropdown(): void {\n    if (!this.disabled()) {\n      this.isOpen.set(!this.isOpen());\n    }\n  }\n\n  selectOption(option: DropdownOption<T>): void {\n    this.value.set(option.value);\n    this.onChange(option.value);\n    this.isOpen.set(false);\n  }\n\n  writeValue(val: T): void {\n    this.value.set(val);\n  }\n\n  registerOnChange(fn: (value: T) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled.set(isDisabled);\n  }\n}\n",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  HostListener,\n  input,\n  model,\n  signal,\n  inject,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\nexport interface DropdownOption<T = string> {\n  value: T;\n  label: string;\n}\n\n@Component({\n  selector: 'app-dropdown',\n  imports: [IconComponent],\n  template: `\n    <div\n      class=\"dropdown__wrapper\"\n      [class.dropdown__wrapper--disabled]=\"disabled()\"\n      [class.dropdown__wrapper--opened]=\"isOpen()\"\n      (click)=\"toggleDropdown()\"\n    >\n      <div class=\"dropdown__control paragraph-tiny\">\n        {{ selectedOption()?.label || placeholder() }}\n      </div>\n      <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n      @if (isOpen()) {\n        <ul class=\"dropdown__options-list\">\n          @for (option of options(); track option.value) {\n            <li\n              class=\"dropdown__option paragraph-tiny\"\n              [class.dropdown__option--selected]=\"value() === option.value\"\n              (click)=\"selectOption(option)\"\n            >\n              {{ option.label }}\n            </li>\n          }\n        </ul>\n      }\n    </div>\n  `,\n  styles: `\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n        height: 100%;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => DropdownComponent),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class DropdownComponent<T> implements ControlValueAccessor {\n  private readonly elementRef = inject(ElementRef);\n\n  readonly placeholder = input<string>('');\n  readonly options = input<DropdownOption<T>[]>([]);\n  readonly ariaLabel = input<string>();\n  readonly disabled = model<boolean>(false);\n\n  readonly value = signal<T | null | undefined>(undefined);\n  readonly isOpen = signal(false);\n\n  readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));\n\n  readonly id = 'dropdown-' + Math.random().toString(9);\n\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onChange: (value: T) => void = () => {};\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onTouched: () => void = () => {};\n\n  @HostListener('document:click', ['$event'])\n  onDocumentClick(event: MouseEvent): void {\n    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.isOpen.set(false);\n    }\n  }\n\n  toggleDropdown(): void {\n    if (!this.disabled()) {\n      this.isOpen.set(!this.isOpen());\n    }\n  }\n\n  selectOption(option: DropdownOption<T>): void {\n    this.value.set(option.value);\n    this.onChange(option.value);\n    this.isOpen.set(false);\n  }\n\n  writeValue(val: T): void {\n    this.value.set(val);\n  }\n\n  registerOnChange(fn: (value: T) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled.set(isDisabled);\n  }\n}\n",
             "properties": [
                 {
                     "name": "label",
@@ -37,10 +127,836 @@
             "extends": []
         }
     ],
-    "injectables": [],
+    "injectables": [
+        {
+            "name": "CategoryPageService",
+            "id": "injectable-CategoryPageService-bb5d832555a19eac12c102e39e1e567ffda2435ebdd7e7007bca1945959ddc2223a8579c6b680f354fecdc03c33c1c7dd78e50d0d0e1703d686111efc6370139",
+            "file": "src/app/features/category-page/category-page.service.ts",
+            "properties": [
+                {
+                    "name": "#categories",
+                    "defaultValue": "this.#store.selectSignal(\n    CategorySelectors.visibleCategories,\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Signal<Category[]>",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 25,
+                    "modifierKind": [
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "#categoriesGroup",
+                    "defaultValue": "this.#store.selectSignal(\n    CategorySelectors.categoryGroups,\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Signal<CategoryGroup[]>",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 28,
+                    "modifierKind": [
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "#queryParams",
+                    "defaultValue": "toSignal(\n    this.#route.queryParamMap.pipe(\n      map((params) => {\n        return {\n          search: params.get('search'),\n          group: params.get('group') ? Number(params.get('group')) : null,\n        };\n      }),\n    ),\n  )",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 35,
+                    "modifierKind": [
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "#route",
+                    "defaultValue": "inject(ActivatedRoute)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 22,
+                    "modifierKind": [
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "#router",
+                    "defaultValue": "inject(Router)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 23,
+                    "modifierKind": [
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "#store",
+                    "defaultValue": "inject(Store)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 21,
+                    "modifierKind": [
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "dropdownOptions",
+                    "defaultValue": "computed(() => {\n    const categoriesGroup = this.#categoriesGroup();\n    if (!categoriesGroup) return [];\n\n    const options = categoriesGroup\n      .map((group: CategoryGroup) => {\n        return {\n          value: group.id.toString(),\n          label: group.name,\n        } as DropdownOption;\n      })\n      .sort((a: DropdownOption, b: DropdownOption) => a.label.localeCompare(b.label));\n\n    options.unshift({ value: '', label: 'Tous les groupes de catégories' } as DropdownOption);\n    return options;\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Signal<DropdownOption[]>",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 92,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "error",
+                    "defaultValue": "this.#store.selectSignal(CategorySelectors.error)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 32,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "getCategoriesByAlphabet",
+                    "defaultValue": "computed(() => {\n    const categories: Category[] = this.#categories();\n    const queryParams = this.#queryParams();\n    categories.sort((a: Category, b: Category) => a.wording.localeCompare(b.wording));\n\n    let sortedCategories = [...categories].sort((a, b) => a.wording.localeCompare(b.wording));\n\n    return this.#filterCategoriesByQueryParams(sortedCategories, queryParams);\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 57,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "getCategoriesGrouped",
+                    "defaultValue": "computed(() => {\n    let categories: Category[] = this.#categories();\n    const queryParams = this.#queryParams();\n    const categoriesByGroup = new Map<CategoryGroupWithPillColor, Category[]>();\n\n    let filteredCategories = this.#filterCategoriesByQueryParams(categories, queryParams);\n\n    filteredCategories.forEach((category: Category) => {\n      const currentGroupId = category.group?.id ?? 0;\n      let groupKey = Array.from(categoriesByGroup.keys()).find((k) => k.id === currentGroupId);\n\n      if (!groupKey) {\n        groupKey = category.group\n          ? { ...category.group, pillColor: getPillColor(category.group.color) }\n          : { id: 0, name: 'Sans groupe', color: '', pillColor: getPillColor('') };\n\n        categoriesByGroup.set(groupKey, []);\n      }\n\n      categoriesByGroup.get(groupKey)!.push(category);\n    });\n\n    return categoriesByGroup;\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 67,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "isLoading",
+                    "defaultValue": "this.#store.selectSignal(CategorySelectors.isLoading)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 31,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "#filterCategoriesByGroup",
+                    "args": [
+                        {
+                            "name": "categories",
+                            "type": "Category[]",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "groupId",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Category[]",
+                    "typeParameters": [],
+                    "line": 127,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "categories",
+                            "type": "Category[]",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "groupId",
+                            "type": "number",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "#filterCategoriesByQueryParams",
+                    "args": [
+                        {
+                            "name": "categories",
+                            "type": "Category[]",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "queryParams",
+                            "type": "CategoryQueryParams | undefined",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Category[]",
+                    "typeParameters": [],
+                    "line": 109,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "categories",
+                            "type": "Category[]",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "queryParams",
+                            "type": "CategoryQueryParams | undefined",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "#filterCategoriesBySearch",
+                    "args": [
+                        {
+                            "name": "categories",
+                            "type": "Category[]",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "search",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Category[]",
+                    "typeParameters": [],
+                    "line": 131,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "categories",
+                            "type": "Category[]",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "search",
+                            "type": "string",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "addFiltersToQueryParams",
+                    "args": [
+                        {
+                            "name": "search",
+                            "type": "string | null | undefined",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "group",
+                            "type": "number | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 46,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "search",
+                            "type": "string | null | undefined",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "group",
+                            "type": "number | null",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { computed, inject, Injectable, Signal } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { ActivatedRoute, Router } from '@angular/router';\nimport { Category, CategoryGroup, CategoryGroupWithPillColor } from '@core/models/category.model';\nimport { Store } from '@ngxs/store';\nimport { CategorySelectors } from '@store/category/category.selectors';\nimport { CategoryState } from '@store/category/category.state';\nimport { DropdownOption } from '@ui/form/dropdown/dropdown';\nimport { getPillColor } from '@ui/pill/pill-color';\nimport { map } from 'rxjs';\n\ninterface CategoryQueryParams {\n  search: string | null;\n  group: number | null;\n}\n\n@Injectable({\n  providedIn: 'root',\n})\nexport class CategoryPageService {\n  readonly #store = inject(Store);\n  readonly #route = inject(ActivatedRoute);\n  readonly #router = inject(Router);\n\n  readonly #categories: Signal<Category[]> = this.#store.selectSignal(\n    CategorySelectors.visibleCategories,\n  );\n  readonly #categoriesGroup: Signal<CategoryGroup[]> = this.#store.selectSignal(\n    CategorySelectors.categoryGroups,\n  );\n  readonly isLoading = this.#store.selectSignal(CategorySelectors.isLoading);\n  readonly error = this.#store.selectSignal(CategorySelectors.error);\n\n\n  readonly #queryParams = toSignal(\n    this.#route.queryParamMap.pipe(\n      map((params) => {\n        return {\n          search: params.get('search'),\n          group: params.get('group') ? Number(params.get('group')) : null,\n        };\n      }),\n    ),\n  );\n\n  public addFiltersToQueryParams(search: string | null | undefined, group: number | null): void {\n    this.#router.navigate([], {\n      relativeTo: this.#route,\n      queryParams: {\n        search,\n        group,\n      },\n      queryParamsHandling: 'merge',\n    });\n  }\n\n  public getCategoriesByAlphabet = computed(() => {\n    const categories: Category[] = this.#categories();\n    const queryParams = this.#queryParams();\n    categories.sort((a: Category, b: Category) => a.wording.localeCompare(b.wording));\n\n    let sortedCategories = [...categories].sort((a, b) => a.wording.localeCompare(b.wording));\n\n    return this.#filterCategoriesByQueryParams(sortedCategories, queryParams);\n  });\n\n  public getCategoriesGrouped = computed(() => {\n    let categories: Category[] = this.#categories();\n    const queryParams = this.#queryParams();\n    const categoriesByGroup = new Map<CategoryGroupWithPillColor, Category[]>();\n\n    let filteredCategories = this.#filterCategoriesByQueryParams(categories, queryParams);\n\n    filteredCategories.forEach((category: Category) => {\n      const currentGroupId = category.group?.id ?? 0;\n      let groupKey = Array.from(categoriesByGroup.keys()).find((k) => k.id === currentGroupId);\n\n      if (!groupKey) {\n        groupKey = category.group\n          ? { ...category.group, pillColor: getPillColor(category.group.color) }\n          : { id: 0, name: 'Sans groupe', color: '', pillColor: getPillColor('') };\n\n        categoriesByGroup.set(groupKey, []);\n      }\n\n      categoriesByGroup.get(groupKey)!.push(category);\n    });\n\n    return categoriesByGroup;\n  });\n\n  public dropdownOptions: Signal<DropdownOption[]> = computed(() => {\n    const categoriesGroup = this.#categoriesGroup();\n    if (!categoriesGroup) return [];\n\n    const options = categoriesGroup\n      .map((group: CategoryGroup) => {\n        return {\n          value: group.id.toString(),\n          label: group.name,\n        } as DropdownOption;\n      })\n      .sort((a: DropdownOption, b: DropdownOption) => a.label.localeCompare(b.label));\n\n    options.unshift({ value: '', label: 'Tous les groupes de catégories' } as DropdownOption);\n    return options;\n  });\n\n  #filterCategoriesByQueryParams(\n    categories: Category[],\n    queryParams: CategoryQueryParams | undefined,\n  ): Category[] {\n    if (!queryParams) return categories;\n    let filteredCategories = categories;\n\n    if (queryParams.group) {\n      filteredCategories = this.#filterCategoriesByGroup(filteredCategories, queryParams.group);\n    }\n\n    if (queryParams.search) {\n      filteredCategories = this.#filterCategoriesBySearch(filteredCategories, queryParams.search);\n    }\n\n    return filteredCategories;\n  }\n\n  #filterCategoriesByGroup(categories: Category[], groupId: number): Category[] {\n    return categories.filter((category) => category.group?.id === groupId);\n  }\n\n  #filterCategoriesBySearch(categories: Category[], search: string): Category[] {\n  if (!search || search.trim() === '') return categories;\n\n  const searchTerms = search.toLowerCase().trim().split(/\\s+/);\n\n  return categories.filter(category => {\n    const wordingWords = category.wording.toLocaleLowerCase().trim().split(/[\\s-']/);\n    return searchTerms.every(searchTerm => {\n      return wordingWords.some(word => word.startsWith(searchTerm));\n      \n    });\n  });\n}\n}\n",
+            "extends": [],
+            "type": "injectable"
+        },
+        {
+            "name": "CategoryService",
+            "id": "injectable-CategoryService-9b8c96fb7907bcc5485295d95f18c96d62f0b830d4f4c5d48569a6b9ed8db5ca5bc00c1984a1c00e847c0b6dea193763164b5419aabfad54a410a35ec15224fe",
+            "file": "src/app/core/services/category.webservice.ts",
+            "properties": [
+                {
+                    "name": "baseUrl",
+                    "defaultValue": "'http://localhost:3001'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 12,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "http",
+                    "defaultValue": "inject(HttpClient)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 10,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "getAllCategories",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Observable<Category[]>",
+                    "typeParameters": [],
+                    "line": 14,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "getVisibleCategories",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "Observable<VisibleCategory[]>",
+                    "typeParameters": [],
+                    "line": 18,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { HttpClient } from '@angular/common/http';\nimport { Injectable, inject } from '@angular/core';\nimport { Observable } from 'rxjs';\nimport { Category, VisibleCategory } from '@models/category.model';\n\n@Injectable({\n  providedIn: 'root',\n})\nexport class CategoryService {\n  private readonly http = inject(HttpClient);\n\n  private readonly baseUrl = 'http://localhost:3001';\n\n  getAllCategories(): Observable<Category[]> {\n    return this.http.get<Category[]>(`${this.baseUrl}/all-categories`);\n  }\n\n  getVisibleCategories(): Observable<VisibleCategory[]> {\n    return this.http.get<VisibleCategory[]>(`${this.baseUrl}/visible-categories`);\n  }\n}\n",
+            "extends": [],
+            "type": "injectable"
+        },
+        {
+            "name": "CategoryState",
+            "id": "injectable-CategoryState-1ebcde6897235599ab5cac7c49e54711dc845dc87d26de29d72b3d36f8afd330bb3135a4ac099d7deb0ba406f4084c22994961597bf9dc6bdbdad7b194b6c68a",
+            "file": "src/app/store/category/category.state.ts",
+            "properties": [
+                {
+                    "name": "categoryService",
+                    "defaultValue": "inject(CategoryService)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 27,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "fetchAllCategoriesAndGroups",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<CategoryStateModel>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 30,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "FetchCategoriesData"
+                        }
+                    ],
+                    "modifierKind": [
+                        171
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<CategoryStateModel>",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { Injectable, inject } from '@angular/core';\nimport { Action, State, StateContext } from '@ngxs/store';\nimport { catchError, tap } from 'rxjs/operators';\nimport { Category, CategoryGroup } from '@core/models/category.model';\nimport { CategoryService } from '@core/services/category.webservice';\nimport { FetchCategoriesData } from '@store/category/category.actions';\nimport { forkJoin, of } from 'rxjs';\n\nexport interface CategoryStateModel {\n  allCategories: Category[];\n  visibleCategories: Category[];\n  isLoading: boolean;\n  error: string | null;\n}\n\n@State<CategoryStateModel>({\n  name: 'categories',\n  defaults: {\n    allCategories: [],\n    visibleCategories: [],\n    isLoading: false,\n    error: null,\n  },\n})\n@Injectable()\nexport class CategoryState {\n  private readonly categoryService = inject(CategoryService);\n\n  @Action(FetchCategoriesData)\n  fetchAllCategoriesAndGroups(ctx: StateContext<CategoryStateModel>) {\n    ctx.patchState({ isLoading: true, error: null });\n\n    return forkJoin({\n      all: this.categoryService.getAllCategories(),\n      visible: this.categoryService.getVisibleCategories(),\n    }).pipe(\n      tap(({ all, visible }) => {\n        const visibleCategories: Category[] = all.filter((category) =>\n          visible.some((vc) => vc.id === category.id),\n        );\n        ctx.patchState({\n          allCategories: all,\n          visibleCategories,\n          isLoading: false,\n        });\n      }),\n      catchError(() => {\n        ctx.patchState({ isLoading: false, error: 'Erreur lors du chargement des catégories' });\n       return of(null)\n      }),\n    );\n  }\n}\n",
+            "extends": [],
+            "type": "injectable"
+        }
+    ],
     "guards": [],
     "interceptors": [],
-    "classes": [],
+    "classes": [
+        {
+            "name": "CategorySelectors",
+            "id": "class-CategorySelectors-d3f51f2df3e7fd2a389f0751175a4eca13103041e3a3ca9c97d5323f40f257bd3a0e4995e76638edf70a1ef532240831a6945ae2492b0a1a4c32d1be52e266d2",
+            "file": "src/app/store/category/category.selectors.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "import { Selector } from '@ngxs/store';\nimport { Category, CategoryGroup } from '@core/models/category.model';\nimport { CategoryState, CategoryStateModel } from '@store/category/category.state';\n\nexport class CategorySelectors {\n  @Selector([CategoryState])\n  static isLoading(state: CategoryStateModel): boolean {\n    return state.isLoading;\n  }\n\n  @Selector([CategoryState])\n  static allCategories(state: CategoryStateModel): Category[] {\n    return state.allCategories;\n  }\n\n  @Selector([CategoryState])\n  static visibleCategories(state: CategoryStateModel): Category[] {\n    return state.visibleCategories;\n  }\n\n  @Selector([CategoryState])\n  static error(state: CategoryStateModel): string | null {\n    return state.error;\n  }\n\n  @Selector([CategoryState])\n  static categoryGroups(state: CategoryStateModel): CategoryGroup[] {\n    if (!state || !state.visibleCategories) {\n      return [];\n    }\n\n    const groupsMap: { [key: number]: CategoryGroup } = {};\n\n    state.visibleCategories.forEach((category) => {\n      if (category.group) {\n        if (!groupsMap[category.group.id]) {\n          groupsMap[category.group.id] = { ...category.group };\n        }\n      }\n    });\n\n    return Object.values(groupsMap);\n  }\n}\n",
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [],
+            "methods": [
+                {
+                    "name": "allCategories",
+                    "args": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Category[]",
+                    "typeParameters": [],
+                    "line": 12,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Selector",
+                            "stringifiedArguments": "['CategoryState']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "categoryGroups",
+                    "args": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "CategoryGroup[]",
+                    "typeParameters": [],
+                    "line": 27,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Selector",
+                            "stringifiedArguments": "['CategoryState']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "error",
+                    "args": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string | null",
+                    "typeParameters": [],
+                    "line": 22,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Selector",
+                            "stringifiedArguments": "['CategoryState']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "isLoading",
+                    "args": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 7,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Selector",
+                            "stringifiedArguments": "['CategoryState']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "visibleCategories",
+                    "args": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Category[]",
+                    "typeParameters": [],
+                    "line": 17,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Selector",
+                            "stringifiedArguments": "['CategoryState']"
+                        }
+                    ],
+                    "modifierKind": [
+                        171,
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "state",
+                            "type": "CategoryStateModel",
+                            "optional": false,
+                            "dotDotDotToken": false,
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "FetchCategoriesData",
+            "id": "class-FetchCategoriesData-e8eeca3111b8a9d1e8208722d51a3ea450adb0a5ce41b2d9eab3341a081b6e4402a1079ff9271f81fe4c8e642f0e1567554e35be329cf139131e6b51573613d1",
+            "file": "src/app/store/category/category.actions.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export class FetchCategoriesData {\n  static readonly type = '[Categories API] Fetch All Categories';\n}\n\nexport class FetchVisibleCategoriesData {\n  static readonly type = '[Categories API] Fetch Visible Categories';\n}\n",
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "type",
+                    "defaultValue": "'[Categories API] Fetch All Categories'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 2,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "FetchVisibleCategoriesData",
+            "id": "class-FetchVisibleCategoriesData-e8eeca3111b8a9d1e8208722d51a3ea450adb0a5ce41b2d9eab3341a081b6e4402a1079ff9271f81fe4c8e642f0e1567554e35be329cf139131e6b51573613d1",
+            "file": "src/app/store/category/category.actions.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export class FetchCategoriesData {\n  static readonly type = '[Categories API] Fetch All Categories';\n}\n\nexport class FetchVisibleCategoriesData {\n  static readonly type = '[Categories API] Fetch Visible Categories';\n}\n",
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "type",
+                    "defaultValue": "'[Categories API] Fetch Visible Categories'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 6,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        }
+    ],
     "directives": [],
     "components": [
         {
@@ -86,8 +1002,46 @@
             "templateData": "<router-outlet />\n"
         },
         {
+            "name": "Button",
+            "id": "component-Button-5ded70e216083c0314a95bdddcb0eb71a9a31e3e1b3d6a9e7d6c1507ea2be63cc1cc6a22d5efda23413ea03b433cb12031f0a99e12d006a3d273196d40c948c3",
+            "file": "src/app/ui/button/button.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-button",
+            "styleUrls": [],
+            "styles": [
+                "\n    :host {\n      display: block;\n    }\n  "
+            ],
+            "template": "<p>button works!</p>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": false,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\n\n@Component({\n  selector: 'app-button',\n  imports: [],\n  template: `<p>button works!</p>`,\n  styles: `\n    :host {\n      display: block;\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Button { }\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    :host {\n      display: block;\n    }\n  \n",
+            "extends": []
+        },
+        {
             "name": "Card",
-            "id": "component-Card-947da7519ebcdf5ce19ffae67cf3066703caafea2adbe62fae1b2bd39beb1c23089dc02a483922d63df6d8c3ad5a2c0d855587e70e0d8b70dbfb7a6c8f1f6b6b",
+            "id": "component-Card-e2debb857b784b7dd9369345353eda9a5dc8383680a3cfcb96cb83dc7f1f9ec64ffe50b26e65aa1ec72ade05bd51e7f8d779d6f88e2f76bc706875ed73d10dca",
             "file": "src/app/ui/card/card.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -98,9 +1052,9 @@
             "selector": "app-card",
             "styleUrls": [],
             "styles": [
-                "\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 0.25rem;\n      padding: 1rem;\n      border: 0.0625rem solid var(--separator);\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  "
+                "\n    :host {\n      display: block;\n      height: 100%;\n    }\n\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 0.25rem;\n      padding: 1rem;\n      border: 0.0625rem solid var(--separator);\n      height: 100%;\n\n      &__pill {\n        margin-top: 0.25rem;\n      }\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  "
             ],
-            "template": "<div class=\"card\" [class.card__selected]=\"selected()\">\n  <h6 class=\"paragraph-semi-bold card__title\">{{ title() }}</h6>\n  <p class=\"paragraph-small card__description\">{{ description() }}</p>\n</div>\n",
+            "template": "<div class=\"card\" [class.card__selected]=\"selected()\">\n  @let color = computedTagColor();\n  @if (tag() && color) {\n    <app-pill class=\"card__pill\" [color]=\"color\">{{ tag() }}</app-pill>\n  }\n\n  <h6 class=\"paragraph-semi-bold card__title\">{{ title() }}</h6>\n  <p class=\"paragraph-small card__description\">{{ description() }}</p>\n</div>\n",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -114,7 +1068,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 42,
+                    "line": 60,
                     "modifierKind": [
                         148
                     ],
@@ -129,7 +1083,37 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 43,
+                    "line": 61,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "tag",
+                    "defaultValue": "undefined",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | undefined",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 62,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                },
+                {
+                    "name": "tagColor",
+                    "defaultValue": "undefined",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string | undefined",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 63,
                     "modifierKind": [
                         148
                     ],
@@ -144,7 +1128,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 41,
+                    "line": 59,
                     "modifierKind": [
                         148
                     ],
@@ -152,26 +1136,45 @@
                 }
             ],
             "outputsClass": [],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "computedTagColor",
+                    "defaultValue": "computed(() => {\n    if (!this.tag()) {\n      return undefined;\n    }\n\n    return getPillColor(this.tagColor() || '');\n  })",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 65,
+                    "modifierKind": [
+                        148
+                    ]
+                }
+            ],
             "methodsClass": [],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
             "hostListeners": [],
-            "standalone": false,
-            "imports": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "Pill"
+                }
+            ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-card',\n  imports: [],\n  template: `\n    <div class=\"card\" [class.card__selected]=\"selected()\">\n      <h6 class=\"paragraph-semi-bold card__title\">{{ title() }}</h6>\n      <p class=\"paragraph-small card__description\">{{ description() }}</p>\n    </div>\n  `,\n  styles: `\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 0.25rem;\n      padding: 1rem;\n      border: 0.0625rem solid var(--separator);\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Card {\n  readonly title = input<string>('Card title');\n  readonly description = input<string>('Card description');\n  readonly selected = input<boolean>(false);\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';\nimport { Pill } from '@ui/pill/pill';\nimport { getPillColor } from '@ui/pill/pill-color';\n\n@Component({\n  selector: 'app-card',\n  standalone: true,\n  imports: [Pill],\n  template: `\n    <div class=\"card\" [class.card__selected]=\"selected()\">\n      @let color = computedTagColor();\n      @if (tag() && color) {\n        <app-pill class=\"card__pill\" [color]=\"color\">{{ tag() }}</app-pill>\n      }\n\n      <h6 class=\"paragraph-semi-bold card__title\">{{ title() }}</h6>\n      <p class=\"paragraph-small card__description\">{{ description() }}</p>\n    </div>\n  `,\n  styles: `\n    :host {\n      display: block;\n      height: 100%;\n    }\n\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 0.25rem;\n      padding: 1rem;\n      border: 0.0625rem solid var(--separator);\n      height: 100%;\n\n      &__pill {\n        margin-top: 0.25rem;\n      }\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Card {\n  readonly title = input<string>('Card title');\n  readonly description = input<string>('Card description');\n  readonly selected = input<boolean>(false);\n  readonly tag = input<string | undefined>(undefined);\n  readonly tagColor = input<string | undefined>(undefined);\n\n  readonly computedTagColor = computed(() => {\n    if (!this.tag()) {\n      return undefined;\n    }\n\n    return getPillColor(this.tagColor() || '');\n  });\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
-            "stylesData": "\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 0.25rem;\n      padding: 1rem;\n      border: 0.0625rem solid var(--separator);\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  \n",
+            "stylesData": "\n    :host {\n      display: block;\n      height: 100%;\n    }\n\n    .card {\n      display: flex;\n      flex-direction: column;\n      gap: 0.25rem;\n      padding: 1rem;\n      border: 0.0625rem solid var(--separator);\n      height: 100%;\n\n      &__pill {\n        margin-top: 0.25rem;\n      }\n\n      &__title {\n        color: var(--brand-diante);\n      }\n\n      &__description {\n        color: var(--grey-barth);\n      }\n\n      &__selected {\n        border-color: var(--cerulean);\n        background-color: var(--light-blue);\n      }\n\n      &:hover {\n        background-color: #f3f5f8;\n      }\n    }\n  \n",
             "extends": []
         },
         {
             "name": "CategoryPage",
-            "id": "component-CategoryPage-673ce96a33dd2dd06cd52e56b709b0f4805311a84e57107d9fcaa24f23ef0ec545aac439a57bb568d285aec6893ae181b102009b33ce6cc067c9182246ffdf13",
+            "id": "component-CategoryPage-43c702e89ed39628de9bf491815c01b7a41f3859e4bfcd12505ef52f9a3d6dde13f2fadc03c23dce083260081be3ec4d8a16022d38b59e91689d56d8add97416",
             "file": "src/app/features/category-page/category-page.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -182,9 +1185,9 @@
             "selector": "app-category-page",
             "styleUrls": [],
             "styles": [
-                "\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n\n    .category-page {\n      display: flex;\n      margin: 2rem 7.625rem 2.8125rem;\n      background-color: white;\n\n      &__form {\n        display: flex;\n        padding: 1rem 1rem 1.5rem;\n        gap: 1rem;\n        width: 100%;\n        justify-content: space-between;\n        align-items: center;\n\n        &__search {\n          flex: 1;\n        }\n\n        &__dropdown {\n          width: 16.9375rem;\n          flex-shrink: 0\n        }\n      }\n    }\n  "
+                "\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n\n    .footer {\n      position: sticky;\n      display: flex;\n      background-color: white;\n      padding: 0.7813rem 7.625rem;\n      bottom: 0;\n      width: 100%;\n      justify-content: flex-end;\n    }\n\n    .category-page {\n      display: flex;\n      flex-direction: column;\n      margin: 2rem 7.625rem 2.8125rem;\n      background-color: white;\n\n      &__skeleton {\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);\n        gap: 1rem;\n\n        &__card {\n           height: 100px; \n        border-radius: 8px;\n        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);\n        background-size: 200% 100%;\n        animation: pulse 1.5s infinite linear;\n        }\n      }\n     \n\n      &__form {\n        display: flex;\n        padding: 1rem 1rem 1.5rem;\n        gap: 1rem;\n        width: 100%;\n        justify-content: space-between;\n        align-items: center;\n\n        &__search {\n          flex: 1;\n          height: 2.1875rem;\n        }\n\n        &__dropdown {\n          width: 16.9375rem;\n          flex-shrink: 0;\n          height: 2.1875rem;\n        }\n      }\n\n      &__category-groups {\n        display: flex;\n        flex-direction: column;\n      }\n\n      &__categories {\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);\n        padding: 0;\n        list-style: none;\n\n        & > li {\n          display: flex;\n          flex-direction: column;\n          height: 100%;\n        }\n      }\n    }\n  "
             ],
-            "template": "<app-header></app-header>\n\n<section class=\"category-page\">\n  <form [formGroup]=\"form\" class=\"category-page__form\">\n    <app-text-input\n      formControlName=\"search\"\n      placeholder=\"Rechercher une catégorie\"\n      iconName=\"search\"\n      class=\"category-page__form__search\"\n    ></app-text-input>\n    <app-dropdown\n      formControlName=\"dropdown\"\n      [placeholder]=\"'Tous les groupes de catégories'\"\n      [options]=\"exampleOptions\"\n      class=\"category-page__form__dropdown\"\n    ></app-dropdown>\n  </form>\n</section>\n",
+            "template": "<app-header></app-header>\n\n<section class=\"category-page\">\n  <form [formGroup]=\"form\" class=\"category-page__form\">\n    <app-text-input\n      formControlName=\"search\"\n      placeholder=\"Rechercher une catégorie\"\n      iconName=\"search\"\n      class=\"category-page__form__search\"\n    ></app-text-input>\n\n    @if (dropdownOptions.length > 0) {\n      <app-dropdown\n        formControlName=\"dropdown\"\n        [placeholder]=\"'Tous les groupes de catégories'\"\n        [options]=\"dropdownOptions\"\n        class=\"category-page__form__dropdown\"\n      ></app-dropdown>\n    }\n  </form>\n\n  <!-- Affichage des erreurs -->\n  @if (error) {\n    <p class=\"paragraph-small\" style=\"color: red;\">{{ error }}</p>\n  }\n\n  <!-- Loading skeleton -->\n  @if (isLoading) {\n    <ul class=\"category-page__skeleton\">\n      @for (category of skeletonArray; track category) {\n        <li>\n          <div class=\"category-page__skeleton__card\"></div>\n        </li>\n      }\n    </ul>\n  }\n\n\n\n  <!-- Vue alphabetique -->\n  @if (sortType() === 'alpha' && !isLoading) {\n    @if (categoriesAlphabetically.length === 0) {\n      <p class=\"paragraph-small\">Aucune catégorie trouvée</p>\n    }\n    <ul class=\"category-page__categories\">\n      @for (category of categoriesAlphabetically; track category) {\n        <li>\n          <app-card\n            [title]=\"category.wording\"\n            [description]=\"category.description\"\n            [tag]=\"category.group?.name\"\n            [tagColor]=\"category.group?.color\"\n          ></app-card>\n        </li>\n      }\n    </ul>\n  }\n\n  <!-- Vue par groupe -->\n  @if (sortType() === 'grouped' && !isLoading) {\n    @if (categoriesGrouped.size === 0) {\n      <p class=\"paragraph-small\">Aucune catégorie trouvée</p>\n    }\n    <ul class=\"category-page__category-groups\">\n      @for (group of categoriesGrouped; track group[0]) {\n        @if (group[0].id) {\n          <li>\n            <app-subnav [color]=\"group[0].pillColor\">{{ group[0].name }}</app-subnav>\n          </li>\n        }\n        <ul class=\"category-page__categories\">\n          @for (category of group[1]; track category.id) {\n            <li>\n              <app-card\n                [title]=\"category.wording\"\n                [description]=\"category.description\"\n              ></app-card>\n            </li>\n          }\n        </ul>\n      }\n    </ul>\n  }\n</section>\n\n<footer class=\"footer\">\n  <button type=\"button\">Click there</button>\n</footer>\n",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -198,24 +1201,43 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 65,
+                    "line": 190,
+                    "modifierKind": [
+                        148
+                    ],
                     "required": false
                 }
             ],
             "outputsClass": [],
             "propertiesClass": [
                 {
-                    "name": "exampleOptions",
-                    "defaultValue": "[\n    { value: 'option1', label: 'Option 1' },\n    { value: 'option2', label: 'Option 2' },\n    { value: 'option3', label: 'Option 3' },\n  ]",
+                    "name": "#categoryPageService",
+                    "defaultValue": "inject(CategoryPageService)",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "DropdownOption<string>[]",
+                    "type": "unknown",
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 67,
+                    "line": 192,
                     "modifierKind": [
-                        148
+                        148,
+                        123
+                    ]
+                },
+                {
+                    "name": "#route",
+                    "defaultValue": "inject(ActivatedRoute)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 193,
+                    "modifierKind": [
+                        148,
+                        123
                     ]
                 },
                 {
@@ -227,7 +1249,21 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 73,
+                    "line": 217,
+                    "modifierKind": [
+                        148
+                    ]
+                },
+                {
+                    "name": "skeletonArray",
+                    "defaultValue": "Array.from({ length: 6 }, (_, i) => i)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 215,
                     "modifierKind": [
                         148
                     ]
@@ -253,20 +1289,81 @@
                 },
                 {
                     "name": "TextInput"
+                },
+                {
+                    "name": "Card"
+                },
+                {
+                    "name": "Subnav"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\nimport { Header } from '@shared/components/header/header';\nimport { DropdownComponent, DropdownOption } from '@ui/form/dropdown/dropdown';\nimport { TextInput } from '@ui/form/text-input/text-input';\n\n@Component({\n  selector: 'app-category-page',\n  standalone: true,\n  imports: [Header, ReactiveFormsModule, DropdownComponent, TextInput],\n  template: `\n    <app-header></app-header>\n\n    <section class=\"category-page\">\n      <form [formGroup]=\"form\" class=\"category-page__form\">\n        <app-text-input\n          formControlName=\"search\"\n          placeholder=\"Rechercher une catégorie\"\n          iconName=\"search\"\n          class=\"category-page__form__search\"\n        ></app-text-input>\n        <app-dropdown\n          formControlName=\"dropdown\"\n          [placeholder]=\"'Tous les groupes de catégories'\"\n          [options]=\"exampleOptions\"\n          class=\"category-page__form__dropdown\"\n        ></app-dropdown>\n      </form>\n    </section>\n  `,\n  styles: `\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n\n    .category-page {\n      display: flex;\n      margin: 2rem 7.625rem 2.8125rem;\n      background-color: white;\n\n      &__form {\n        display: flex;\n        padding: 1rem 1rem 1.5rem;\n        gap: 1rem;\n        width: 100%;\n        justify-content: space-between;\n        align-items: center;\n\n        &__search {\n          flex: 1;\n        }\n\n        &__dropdown {\n          width: 16.9375rem;\n          flex-shrink: 0\n        }\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class CategoryPage {\n  sortType = input<string>('grouped');\n\n  readonly exampleOptions: DropdownOption<string>[] = [\n    { value: 'option1', label: 'Option 1' },\n    { value: 'option2', label: 'Option 2' },\n    { value: 'option3', label: 'Option 3' },\n  ];\n\n  readonly form = new FormGroup({\n    search: new FormControl<string>(''),\n    dropdown: new FormControl<string>(''),\n  });\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';\nimport { takeUntilDestroyed } from '@angular/core/rxjs-interop';\nimport { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';\nimport { ActivatedRoute, Router } from '@angular/router';\nimport { Category, CategoryGroup, CategoryGroupWithPillColor } from '@core/models/category.model';\nimport { Store } from '@ngxs/store';\nimport { Header } from '@shared/components/header/header';\nimport { Card } from '@ui/card/card';\nimport { DropdownComponent, DropdownOption } from '@ui/form/dropdown/dropdown';\nimport { TextInput } from '@ui/form/text-input/text-input';\nimport { getPillColor } from '@ui/pill/pill-color';\nimport { Subnav } from '@ui/subnav/subnav';\nimport { debounceTime } from 'rxjs';\nimport { CategoryPageService } from './category-page.service';\n\n@Component({\n  selector: 'app-category-page',\n  standalone: true,\n  imports: [Header, ReactiveFormsModule, DropdownComponent, TextInput, Card, Subnav],\n  template: `\n    <app-header></app-header>\n\n    <section class=\"category-page\">\n      <form [formGroup]=\"form\" class=\"category-page__form\">\n        <app-text-input\n          formControlName=\"search\"\n          placeholder=\"Rechercher une catégorie\"\n          iconName=\"search\"\n          class=\"category-page__form__search\"\n        ></app-text-input>\n\n        @if (dropdownOptions.length > 0) {\n          <app-dropdown\n            formControlName=\"dropdown\"\n            [placeholder]=\"'Tous les groupes de catégories'\"\n            [options]=\"dropdownOptions\"\n            class=\"category-page__form__dropdown\"\n          ></app-dropdown>\n        }\n      </form>\n\n      <!-- Affichage des erreurs -->\n      @if (error) {\n        <p class=\"paragraph-small\" style=\"color: red;\">{{ error }}</p>\n      }\n\n      <!-- Loading skeleton -->\n      @if (isLoading) {\n        <ul class=\"category-page__skeleton\">\n          @for (category of skeletonArray; track category) {\n            <li>\n              <div class=\"category-page__skeleton__card\"></div>\n            </li>\n          }\n        </ul>\n      }\n\n\n\n      <!-- Vue alphabetique -->\n      @if (sortType() === 'alpha' && !isLoading) {\n        @if (categoriesAlphabetically.length === 0) {\n          <p class=\"paragraph-small\">Aucune catégorie trouvée</p>\n        }\n        <ul class=\"category-page__categories\">\n          @for (category of categoriesAlphabetically; track category) {\n            <li>\n              <app-card\n                [title]=\"category.wording\"\n                [description]=\"category.description\"\n                [tag]=\"category.group?.name\"\n                [tagColor]=\"category.group?.color\"\n              ></app-card>\n            </li>\n          }\n        </ul>\n      }\n\n      <!-- Vue par groupe -->\n      @if (sortType() === 'grouped' && !isLoading) {\n        @if (categoriesGrouped.size === 0) {\n          <p class=\"paragraph-small\">Aucune catégorie trouvée</p>\n        }\n        <ul class=\"category-page__category-groups\">\n          @for (group of categoriesGrouped; track group[0]) {\n            @if (group[0].id) {\n              <li>\n                <app-subnav [color]=\"group[0].pillColor\">{{ group[0].name }}</app-subnav>\n              </li>\n            }\n            <ul class=\"category-page__categories\">\n              @for (category of group[1]; track category.id) {\n                <li>\n                  <app-card\n                    [title]=\"category.wording\"\n                    [description]=\"category.description\"\n                  ></app-card>\n                </li>\n              }\n            </ul>\n          }\n        </ul>\n      }\n    </section>\n\n    <footer class=\"footer\">\n      <button type=\"button\">Click there</button>\n    </footer>\n  `,\n  styles: `\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n\n    .footer {\n      position: sticky;\n      display: flex;\n      background-color: white;\n      padding: 0.7813rem 7.625rem;\n      bottom: 0;\n      width: 100%;\n      justify-content: flex-end;\n    }\n\n    .category-page {\n      display: flex;\n      flex-direction: column;\n      margin: 2rem 7.625rem 2.8125rem;\n      background-color: white;\n\n      &__skeleton {\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);\n        gap: 1rem;\n\n        &__card {\n           height: 100px; \n        border-radius: 8px;\n        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);\n        background-size: 200% 100%;\n        animation: pulse 1.5s infinite linear;\n        }\n      }\n     \n\n      &__form {\n        display: flex;\n        padding: 1rem 1rem 1.5rem;\n        gap: 1rem;\n        width: 100%;\n        justify-content: space-between;\n        align-items: center;\n\n        &__search {\n          flex: 1;\n          height: 2.1875rem;\n        }\n\n        &__dropdown {\n          width: 16.9375rem;\n          flex-shrink: 0;\n          height: 2.1875rem;\n        }\n      }\n\n      &__category-groups {\n        display: flex;\n        flex-direction: column;\n      }\n\n      &__categories {\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);\n        padding: 0;\n        list-style: none;\n\n        & > li {\n          display: flex;\n          flex-direction: column;\n          height: 100%;\n        }\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class CategoryPage {\n  readonly sortType = input<string>('grouped');\n\n  readonly #categoryPageService = inject(CategoryPageService);\n  readonly #route = inject(ActivatedRoute);\n\n  get categoriesAlphabetically() {\n    return this.#categoryPageService.getCategoriesByAlphabet();\n  }\n\n  get categoriesGrouped() {\n    return this.#categoryPageService.getCategoriesGrouped();\n  }\n\n  get dropdownOptions() {\n    return this.#categoryPageService.dropdownOptions();\n  }\n\n  get isLoading() {\n    return this.#categoryPageService.isLoading();\n  }\n\n  get error() {\n    return this.#categoryPageService.error();\n  }\n\n  readonly skeletonArray = Array.from({ length: 6 }, (_, i) => i);\n\n  readonly form = new FormGroup({\n    search: new FormControl<string>(''),\n    dropdown: new FormControl<string>(''),\n  });\n\n  constructor() {\n    this.#route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {\n      this.form.patchValue(\n        {\n          search: params.get('search') || '',\n          dropdown: params.get('group') || '',\n        },\n        { emitEvent: false },\n      );\n    });\n\n    this.form.valueChanges.pipe(takeUntilDestroyed(), debounceTime(300)).subscribe((value) => {\n      this.#categoryPageService.addFiltersToQueryParams(\n        value.search ?? null,\n        value.dropdown ? Number(value.dropdown) : null,\n      );\n    });\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
-            "stylesData": "\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n\n    .category-page {\n      display: flex;\n      margin: 2rem 7.625rem 2.8125rem;\n      background-color: white;\n\n      &__form {\n        display: flex;\n        padding: 1rem 1rem 1.5rem;\n        gap: 1rem;\n        width: 100%;\n        justify-content: space-between;\n        align-items: center;\n\n        &__search {\n          flex: 1;\n        }\n\n        &__dropdown {\n          width: 16.9375rem;\n          flex-shrink: 0\n        }\n      }\n    }\n  \n",
-            "extends": []
+            "stylesData": "\n    :host {\n      display: block;\n      background-color: var(--background-page);\n      height: 100%;\n    }\n\n    .footer {\n      position: sticky;\n      display: flex;\n      background-color: white;\n      padding: 0.7813rem 7.625rem;\n      bottom: 0;\n      width: 100%;\n      justify-content: flex-end;\n    }\n\n    .category-page {\n      display: flex;\n      flex-direction: column;\n      margin: 2rem 7.625rem 2.8125rem;\n      background-color: white;\n\n      &__skeleton {\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);\n        gap: 1rem;\n\n        &__card {\n           height: 100px; \n        border-radius: 8px;\n        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);\n        background-size: 200% 100%;\n        animation: pulse 1.5s infinite linear;\n        }\n      }\n     \n\n      &__form {\n        display: flex;\n        padding: 1rem 1rem 1.5rem;\n        gap: 1rem;\n        width: 100%;\n        justify-content: space-between;\n        align-items: center;\n\n        &__search {\n          flex: 1;\n          height: 2.1875rem;\n        }\n\n        &__dropdown {\n          width: 16.9375rem;\n          flex-shrink: 0;\n          height: 2.1875rem;\n        }\n      }\n\n      &__category-groups {\n        display: flex;\n        flex-direction: column;\n      }\n\n      &__categories {\n        display: grid;\n        grid-template-columns: repeat(2, 1fr);\n        padding: 0;\n        list-style: none;\n\n        & > li {\n          display: flex;\n          flex-direction: column;\n          height: 100%;\n        }\n      }\n    }\n  \n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [],
+                "line": 220
+            },
+            "extends": [],
+            "accessors": {
+                "categoriesAlphabetically": {
+                    "name": "categoriesAlphabetically",
+                    "getSignature": {
+                        "name": "categoriesAlphabetically",
+                        "type": "",
+                        "returnType": "",
+                        "line": 195
+                    }
+                },
+                "categoriesGrouped": {
+                    "name": "categoriesGrouped",
+                    "getSignature": {
+                        "name": "categoriesGrouped",
+                        "type": "",
+                        "returnType": "",
+                        "line": 199
+                    }
+                },
+                "dropdownOptions": {
+                    "name": "dropdownOptions",
+                    "getSignature": {
+                        "name": "dropdownOptions",
+                        "type": "",
+                        "returnType": "",
+                        "line": 203
+                    }
+                },
+                "isLoading": {
+                    "name": "isLoading",
+                    "getSignature": {
+                        "name": "isLoading",
+                        "type": "",
+                        "returnType": "",
+                        "line": 207
+                    }
+                },
+                "error": {
+                    "name": "error",
+                    "getSignature": {
+                        "name": "error",
+                        "type": "",
+                        "returnType": "",
+                        "line": 211
+                    }
+                }
+            }
         },
         {
             "name": "DropdownComponent",
-            "id": "component-DropdownComponent-a699c0882a3dd1afa83aa84eff92ab19726c5fed5e5e1f47f6725900ea2ca2322238182a1ab7fd7b63b84f4621960126f053d83cff02d2ac0acbdcbd3b501b96",
+            "id": "component-DropdownComponent-d71a24a182e83083d2d2608d1898dcf3dccd70034657eae0c19dbba592cb0df6ddd5bd281ea7f52792d69fa892a124745101dc95e27d21eaadcdab54f1d2dc63",
             "file": "src/app/ui/form/dropdown/dropdown.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -281,7 +1378,7 @@
             "selector": "app-dropdown",
             "styleUrls": [],
             "styles": [
-                "\n    .dropdown {\n\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  "
+                "\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n        height: 100%;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  "
             ],
             "template": "<div\n  class=\"dropdown__wrapper\"\n  [class.dropdown__wrapper--disabled]=\"disabled()\"\n  [class.dropdown__wrapper--opened]=\"isOpen()\"\n  (click)=\"toggleDropdown()\"\n>\n  <div class=\"dropdown__control paragraph-tiny\">\n    {{ selectedOption()?.label || placeholder() }}\n  </div>\n  <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n  @if (isOpen()) {\n    <ul class=\"dropdown__options-list\">\n      @for (option of options(); track option.value) {\n        <li\n          class=\"dropdown__option paragraph-tiny\"\n          [class.dropdown__option--selected]=\"value() === option.value\"\n          (click)=\"selectOption(option)\"\n        >\n          {{ option.label }}\n        </li>\n      }\n    </ul>\n  }\n</div>\n",
             "templateUrl": [],
@@ -729,10 +1826,10 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  HostListener,\n  input,\n  model,\n  signal,\n  inject,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\nexport interface DropdownOption<T = string> {\n  value: T;\n  label: string;\n}\n\n@Component({\n  selector: 'app-dropdown',\n  imports: [IconComponent],\n  template: `\n    <div\n      class=\"dropdown__wrapper\"\n      [class.dropdown__wrapper--disabled]=\"disabled()\"\n      [class.dropdown__wrapper--opened]=\"isOpen()\"\n      (click)=\"toggleDropdown()\"\n    >\n      <div class=\"dropdown__control paragraph-tiny\">\n        {{ selectedOption()?.label || placeholder() }}\n      </div>\n      <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n      @if (isOpen()) {\n        <ul class=\"dropdown__options-list\">\n          @for (option of options(); track option.value) {\n            <li\n              class=\"dropdown__option paragraph-tiny\"\n              [class.dropdown__option--selected]=\"value() === option.value\"\n              (click)=\"selectOption(option)\"\n            >\n              {{ option.label }}\n            </li>\n          }\n        </ul>\n      }\n    </div>\n  `,\n  styles: `\n    .dropdown {\n\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => DropdownComponent),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class DropdownComponent<T> implements ControlValueAccessor {\n  private readonly elementRef = inject(ElementRef);\n\n  readonly placeholder = input<string>('');\n  readonly options = input<DropdownOption<T>[]>([]);\n  readonly ariaLabel = input<string>();\n  readonly disabled = model<boolean>(false);\n\n  readonly value = signal<T | null | undefined>(undefined);\n  readonly isOpen = signal(false);\n\n  readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));\n\n  readonly id = 'dropdown-' + Math.random().toString(9);\n\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onChange: (value: T) => void = () => {};\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onTouched: () => void = () => {};\n\n  @HostListener('document:click', ['$event'])\n  onDocumentClick(event: MouseEvent): void {\n    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.isOpen.set(false);\n    }\n  }\n\n  toggleDropdown(): void {\n    if (!this.disabled()) {\n      this.isOpen.set(!this.isOpen());\n    }\n  }\n\n  selectOption(option: DropdownOption<T>): void {\n    this.value.set(option.value);\n    this.onChange(option.value);\n    this.isOpen.set(false);\n  }\n\n  writeValue(val: T): void {\n    this.value.set(val);\n  }\n\n  registerOnChange(fn: (value: T) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled.set(isDisabled);\n  }\n}\n",
+            "sourceCode": "import {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  ElementRef,\n  forwardRef,\n  HostListener,\n  input,\n  model,\n  signal,\n  inject,\n} from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\nexport interface DropdownOption<T = string> {\n  value: T;\n  label: string;\n}\n\n@Component({\n  selector: 'app-dropdown',\n  imports: [IconComponent],\n  template: `\n    <div\n      class=\"dropdown__wrapper\"\n      [class.dropdown__wrapper--disabled]=\"disabled()\"\n      [class.dropdown__wrapper--opened]=\"isOpen()\"\n      (click)=\"toggleDropdown()\"\n    >\n      <div class=\"dropdown__control paragraph-tiny\">\n        {{ selectedOption()?.label || placeholder() }}\n      </div>\n      <app-icon name=\"arrow\" class=\"dropdown__icon\" aria-hidden=\"true\"></app-icon>\n      @if (isOpen()) {\n        <ul class=\"dropdown__options-list\">\n          @for (option of options(); track option.value) {\n            <li\n              class=\"dropdown__option paragraph-tiny\"\n              [class.dropdown__option--selected]=\"value() === option.value\"\n              (click)=\"selectOption(option)\"\n            >\n              {{ option.label }}\n            </li>\n          }\n        </ul>\n      }\n    </div>\n  `,\n  styles: `\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n        height: 100%;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => DropdownComponent),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class DropdownComponent<T> implements ControlValueAccessor {\n  private readonly elementRef = inject(ElementRef);\n\n  readonly placeholder = input<string>('');\n  readonly options = input<DropdownOption<T>[]>([]);\n  readonly ariaLabel = input<string>();\n  readonly disabled = model<boolean>(false);\n\n  readonly value = signal<T | null | undefined>(undefined);\n  readonly isOpen = signal(false);\n\n  readonly selectedOption = computed(() => this.options().find((o) => o.value === this.value()));\n\n  readonly id = 'dropdown-' + Math.random().toString(9);\n\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onChange: (value: T) => void = () => {};\n  // eslint-disable-next-line @typescript-eslint/no-empty-function\n  onTouched: () => void = () => {};\n\n  @HostListener('document:click', ['$event'])\n  onDocumentClick(event: MouseEvent): void {\n    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {\n      this.isOpen.set(false);\n    }\n  }\n\n  toggleDropdown(): void {\n    if (!this.disabled()) {\n      this.isOpen.set(!this.isOpen());\n    }\n  }\n\n  selectOption(option: DropdownOption<T>): void {\n    this.value.set(option.value);\n    this.onChange(option.value);\n    this.isOpen.set(false);\n  }\n\n  writeValue(val: T): void {\n    this.value.set(val);\n  }\n\n  registerOnChange(fn: (value: T) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled.set(isDisabled);\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
-            "stylesData": "\n    .dropdown {\n\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  \n",
+            "stylesData": "\n    .dropdown {\n      &__wrapper {\n        position: relative;\n        display: flex;\n        align-items: center;\n        width: 100%;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: pointer;\n        height: 100%;\n\n        &--disabled {\n          opacity: 0.5;\n          cursor: not-allowed;\n          pointer-events: none;\n        }\n\n        &--opened {\n          border-color: var(--cerulean);\n\n          .dropdown__icon {\n            color: var(--cerulean);\n            transform: rotate(180deg);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        color: var(--text-color, inherit);\n        transition:\n          transform 0.2s ease,\n          color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        padding: 0 0.5625rem 0 0;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0.5938rem 0 0.5938rem 0.5625rem;\n      }\n\n      &__options-list {\n        position: absolute;\n        top: calc(100% + 0.25rem);\n        left: 0;\n        right: 0;\n        background-color: var(--background, #ffffff);\n        border: 1px solid var(--separator);\n        border-radius: 0.25rem;\n        list-style: none;\n        padding: 0.25rem 0;\n        margin: 0;\n        z-index: 10;\n        max-height: 12.5rem;\n        overflow-y: auto;\n      }\n\n      &__option {\n        padding: 0.5rem 0.75rem;\n        cursor: pointer;\n        transition: background-color 0.2s ease;\n\n        &:hover {\n          background-color: #f5f5f5;\n          font-weight: 500;\n        }\n\n        &--selected {\n          color: var(--cerulean);\n          font-weight: 600;\n\n          &:hover {\n            font-weight: 600;\n          }\n        }\n      }\n    }\n  \n",
             "extends": [],
             "implements": [
                 "ControlValueAccessor"
@@ -740,7 +1837,7 @@
         },
         {
             "name": "Header",
-            "id": "component-Header-55bf213f1770c88ff15ebf9835bbd92b82164a51b973bc95d4433834d624664355af7bbca494860d18396662a780f4d804b88f94e688513b806f08f6afda4eb9",
+            "id": "component-Header-a1b5aa3415d3afe380608702aecb54be58194c0ec5112d52db314ccc3b0284c30c3a69ad31c5cd4b254ff121e916cd7cbfbb5b26873689350e297a3046c08bc7",
             "file": "src/app/shared/components/header/header.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -751,7 +1848,7 @@
             "selector": "app-header",
             "styleUrls": [],
             "styles": [
-                "\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 1.0625rem 7.625rem;\n      gap: 0.5rem;\n      background-color: white;\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 0.5rem;\n      }\n    }\n  "
+                "\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 1.0625rem 7.625rem;\n      gap: 0.5rem;\n      background-color: white;\n      top:0;\n      width: 100%;\n\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 0.5rem;\n      }\n    }\n  "
             ],
             "template": "<header class=\"header\">\n  <h4>Catégories</h4>\n  <nav class=\"header__nav\">\n    <ul>\n      <li>\n        <app-tab [link]=\"'/category/grouped'\">\n          <app-icon name=\"category\" />\n          Groupe de catégorie\n        </app-tab>\n      </li>\n      <li>\n        <app-tab [link]=\"'/category/alpha'\">\n          <app-icon name=\"alphabet\" />\n          Ordre alphabétique\n        </app-tab>\n      </li>\n    </ul>\n  </nav>\n</header>\n",
             "templateUrl": [],
@@ -778,10 +1875,10 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { Tab } from '@ui/tab/tab';\nimport { IconComponent } from '@ui/icon/icon';\n\n@Component({\n  selector: 'app-header',\n  standalone: true,\n  imports: [Tab, IconComponent],\n  template: `\n    <header class=\"header\">\n      <h4>Catégories</h4>\n      <nav class=\"header__nav\">\n        <ul>\n          <li>\n            <app-tab [link]=\"'/category/grouped'\">\n              <app-icon name=\"category\" />\n              Groupe de catégorie\n            </app-tab>\n          </li>\n          <li>\n            <app-tab [link]=\"'/category/alpha'\">\n              <app-icon name=\"alphabet\" />\n              Ordre alphabétique\n            </app-tab>\n          </li>\n        </ul>\n      </nav>\n    </header>\n  `,\n  styles: `\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 1.0625rem 7.625rem;\n      gap: 0.5rem;\n      background-color: white;\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 0.5rem;\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Header {}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component } from '@angular/core';\nimport { Tab } from '@ui/tab/tab';\nimport { IconComponent } from '@ui/icon/icon';\n\n@Component({\n  selector: 'app-header',\n  standalone: true,\n  imports: [Tab, IconComponent],\n  template: `\n    <header class=\"header\">\n      <h4>Catégories</h4>\n      <nav class=\"header__nav\">\n        <ul>\n          <li>\n            <app-tab [link]=\"'/category/grouped'\">\n              <app-icon name=\"category\" />\n              Groupe de catégorie\n            </app-tab>\n          </li>\n          <li>\n            <app-tab [link]=\"'/category/alpha'\">\n              <app-icon name=\"alphabet\" />\n              Ordre alphabétique\n            </app-tab>\n          </li>\n        </ul>\n      </nav>\n    </header>\n  `,\n  styles: `\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 1.0625rem 7.625rem;\n      gap: 0.5rem;\n      background-color: white;\n      top:0;\n      width: 100%;\n\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 0.5rem;\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Header {}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
-            "stylesData": "\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 1.0625rem 7.625rem;\n      gap: 0.5rem;\n      background-color: white;\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 0.5rem;\n      }\n    }\n  \n",
+            "stylesData": "\n    .header {\n      position: sticky;\n      display: flex;\n      padding: 1.0625rem 7.625rem;\n      gap: 0.5rem;\n      background-color: white;\n      top:0;\n      width: 100%;\n\n\n      ul {\n        list-style: none;\n        padding: 0;\n        margin: 0;\n      }\n\n      li {\n        display: inline-block;\n      }\n\n      &__nav {\n        display: flex;\n        align-items: center;\n        padding: 0;\n        gap: 0.5rem;\n      }\n    }\n  \n",
             "extends": []
         },
         {
@@ -847,7 +1944,7 @@
         },
         {
             "name": "Pill",
-            "id": "component-Pill-33e9da07af06d7cb4e43a6019daea39020c44f09a4537bf47d4b944d9e60f46c369be9234474c0eee27d4a8731d4123a61c877af3390e51e6455f2ff29502403",
+            "id": "component-Pill-843b7d6ea9ca1d56bd29c4f51de3b5c2393178f9a9c897af5f39f6858e0849c314c53bd212e36825f6739a9010bed40bb8f7ee1fee02a48a71e4027fa0b67045",
             "file": "src/app/ui/pill/pill.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -858,7 +1955,7 @@
             "selector": "app-pill",
             "styleUrls": [],
             "styles": [
-                "\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 0.75rem;\n      border-radius: 1rem;\n      width: fit-content;\n      height: 1.25rem;\n      box-sizing: border-box;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n    }\n  "
+                "\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 0.75rem;\n      border-radius: 1rem;\n      width: fit-content;\n      height: 1.25rem;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n\n      &__purple {\n        background-color: var(--light-purple);\n        color: var(--purple);\n      }\n\n      &__pink {\n        background-color: var(--light-pink);\n        color: var(--pink);\n      }\n\n      &__green {\n        background-color: var(--light-green);\n        color: var(--green);\n      }\n    }\n  "
             ],
             "template": "<p class=\"pill paragraph-tiny\" [class]=\"'pill__' + color()\">\n  <ng-content></ng-content>\n</p>\n",
             "templateUrl": [],
@@ -870,11 +1967,11 @@
                     "defaultValue": "'blue'",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "\"blue\" | \"red\" | \"yellow\"",
+                    "type": "PillColor",
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 40,
+                    "line": 55,
                     "modifierKind": [
                         148
                     ],
@@ -893,15 +1990,69 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-pill',\n  standalone: true,\n  template: `\n    <p class=\"pill paragraph-tiny\" [class]=\"'pill__' + color()\">\n      <ng-content></ng-content>\n    </p>\n  `,\n  styles: `\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 0.75rem;\n      border-radius: 1rem;\n      width: fit-content;\n      height: 1.25rem;\n      box-sizing: border-box;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Pill {\n  readonly color = input<'blue' | 'red' | 'yellow'>('blue');\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { PillColor } from '@ui/pill/pill-color';\n\n@Component({\n  selector: 'app-pill',\n  standalone: true,\n  template: `\n    <p class=\"pill paragraph-tiny\" [class]=\"'pill__' + color()\">\n      <ng-content></ng-content>\n    </p>\n  `,\n  styles: `\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 0.75rem;\n      border-radius: 1rem;\n      width: fit-content;\n      height: 1.25rem;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n\n      &__purple {\n        background-color: var(--light-purple);\n        color: var(--purple);\n      }\n\n      &__pink {\n        background-color: var(--light-pink);\n        color: var(--pink);\n      }\n\n      &__green {\n        background-color: var(--light-green);\n        color: var(--green);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Pill {\n  readonly color = input<PillColor>('blue');\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
-            "stylesData": "\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 0.75rem;\n      border-radius: 1rem;\n      width: fit-content;\n      height: 1.25rem;\n      box-sizing: border-box;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n    }\n  \n",
+            "stylesData": "\n    .pill {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 0.75rem;\n      border-radius: 1rem;\n      width: fit-content;\n      height: 1.25rem;\n\n      &__blue {\n        background-color: var(--light-blue);\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: var(--light-red);\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n\n      &__purple {\n        background-color: var(--light-purple);\n        color: var(--purple);\n      }\n\n      &__pink {\n        background-color: var(--light-pink);\n        color: var(--pink);\n      }\n\n      &__green {\n        background-color: var(--light-green);\n        color: var(--green);\n      }\n    }\n  \n",
+            "extends": []
+        },
+        {
+            "name": "Subnav",
+            "id": "component-Subnav-4b6f1b86726fb00aa4f5cf3f8685e3a3c9e816c26f6815dd1c590b2c69560a53c1c6a0e35ea5c125d9aae7e0bc6710ea6b2a391541a01d6aa917a5b593d36bb5",
+            "file": "src/app/ui/subnav/subnav.ts",
+            "changeDetection": "ChangeDetectionStrategy.OnPush",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-subnav",
+            "styleUrls": [],
+            "styles": [
+                "\n    .subnav {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 1rem;\n      width: 100%;\n      height: 1.25rem;\n\n      &__blue {\n        background-color: #e0f6fe;\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: #ffece6;\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n\n      &__purple {\n        background-color: var(--light-purple);\n        color: var(--purple);\n      }\n\n      &__pink {\n        background-color: var(--light-pink);\n        color: var(--pink);\n      }\n\n      &__green {\n        background-color: var(--light-green);\n        color: var(--green);\n      }\n    }\n  "
+            ],
+            "template": "<p class=\"subnav paragraph-tiny\" [class]=\"'subnav__' + color()\">\n  <ng-content></ng-content>\n</p>\n",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "color",
+                    "defaultValue": "'blue'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "PillColor",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 54,
+                    "modifierKind": [
+                        148
+                    ],
+                    "required": false
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { PillColor } from '@ui/pill/pill-color';\n\n@Component({\n  selector: 'app-subnav',\n  standalone: true,\n  template: `\n    <p class=\"subnav paragraph-tiny\" [class]=\"'subnav__' + color()\">\n      <ng-content></ng-content>\n    </p>\n  `,\n  styles: `\n    .subnav {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 1rem;\n      width: 100%;\n      height: 1.25rem;\n\n      &__blue {\n        background-color: #e0f6fe;\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: #ffece6;\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n\n      &__purple {\n        background-color: var(--light-purple);\n        color: var(--purple);\n      }\n\n      &__pink {\n        background-color: var(--light-pink);\n        color: var(--pink);\n      }\n\n      &__green {\n        background-color: var(--light-green);\n        color: var(--green);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Subnav {\n  readonly color = input<PillColor>('blue');\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "\n    .subnav {\n      display: inline-flex;\n      align-items: center;\n      padding: 0.125rem 1rem;\n      width: 100%;\n      height: 1.25rem;\n\n      &__blue {\n        background-color: #e0f6fe;\n        color: var(--cerulean);\n      }\n\n      &__red {\n        background-color: #ffece6;\n        color: var(--bittersweet);\n      }\n\n      &__yellow {\n        background-color: var(--light-yellow);\n        color: var(--yellow);\n      }\n\n      &__purple {\n        background-color: var(--light-purple);\n        color: var(--purple);\n      }\n\n      &__pink {\n        background-color: var(--light-pink);\n        color: var(--pink);\n      }\n\n      &__green {\n        background-color: var(--light-green);\n        color: var(--green);\n      }\n    }\n  \n",
             "extends": []
         },
         {
             "name": "Tab",
-            "id": "component-Tab-70da83b6dea1d439fc17f1d88a336a16020eaa8002380617bf55aad055a8f28e3820831f17c2dbae95399e691e1ceb1a8e4951f137c1c950f491c2a1145f8931",
+            "id": "component-Tab-833ff3afae7b880701e5c7ea1b0ad4ae6e58cff783af65e5f592ca9eb81d432010e0dba5d8c9e9f376689d8d6c349284a8d79c35d692b070ae56b900e1c1921a",
             "file": "src/app/ui/tab/tab.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -914,7 +2065,7 @@
             "styles": [
                 "\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 0.5rem;\n      padding: 0.5rem;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  "
             ],
-            "template": "<a\n  class=\"tab tab-text\"\n  [routerLink]=\"[link()]\"\n  routerLinkActive=\"tab__active\"\n  [routerLinkActiveOptions]=\"{ exact: true }\"\n>\n  <ng-content></ng-content>\n</a>\n",
+            "template": "<a class=\"tab tab-text\" [routerLink]=\"[link()]\" routerLinkActive=\"tab__active\">\n  <ng-content></ng-content>\n</a>\n",
             "templateUrl": [],
             "viewProviders": [],
             "hostDirectives": [],
@@ -928,7 +2079,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 40,
+                    "line": 35,
                     "modifierKind": [
                         148
                     ],
@@ -954,7 +2105,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { RouterLink, RouterLinkActive } from '@angular/router';\n\n@Component({\n  selector: 'app-tab',\n  imports: [RouterLink, RouterLinkActive],\n  standalone: true,\n  template: `\n    <a\n      class=\"tab tab-text\"\n      [routerLink]=\"[link()]\"\n      routerLinkActive=\"tab__active\"\n      [routerLinkActiveOptions]=\"{ exact: true }\"\n    >\n      <ng-content></ng-content>\n    </a>\n  `,\n  styles: `\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 0.5rem;\n      padding: 0.5rem;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Tab {\n  readonly link = input<string>('');\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, input } from '@angular/core';\nimport { RouterLink, RouterLinkActive } from '@angular/router';\n\n@Component({\n  selector: 'app-tab',\n  imports: [RouterLink, RouterLinkActive],\n  standalone: true,\n  template: `\n    <a class=\"tab tab-text\" [routerLink]=\"[link()]\" routerLinkActive=\"tab__active\">\n      <ng-content></ng-content>\n    </a>\n  `,\n  styles: `\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 0.5rem;\n      padding: 0.5rem;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  `,\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class Tab {\n  readonly link = input<string>('');\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "\n    .tab {\n      display: inline-flex;\n      align-items: center;\n      gap: 0.5rem;\n      padding: 0.5rem;\n      color: black;\n      text-decoration: none;\n\n      &:focus {\n        cursor: pointer;\n      }\n\n      &__active {\n        color: var(--cerulean) !important;\n        background-color: var(--light-blue);\n      }\n    }\n  \n",
@@ -962,7 +2113,7 @@
         },
         {
             "name": "TextInput",
-            "id": "component-TextInput-be75e7debef747d9e7025fd794ebfa1935fff8b95ecaa11c1c4e49e6c0fc200f0fb73d5a9eeff261a90cf1c005bde6410dbf46c9117d40040bac33a1a4c16eaa",
+            "id": "component-TextInput-199872fdea56d16ccf474743d49be52e99cbbefaaa291e98c2da55dabb049d7e7ff2971c6d9fa807f71388b7fdb62dfb8efd20188dfe0c0a4f8e5f9b75c61cdf",
             "file": "src/app/ui/form/text-input/text-input.ts",
             "changeDetection": "ChangeDetectionStrategy.OnPush",
             "encapsulation": [],
@@ -977,7 +2128,7 @@
             "selector": "app-text-input",
             "styleUrls": [],
             "styles": [
-                "\n    .input-text {\n      \n\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 0.5938rem 0.5625rem;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        height: 2.1875rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n        box-sizing: border-box;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 0.5rem;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        height: 0.875rem;\n        width: 0.875rem;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  "
+                "\n    .input-text {\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 0.6563rem 0.5625rem;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        height: 100%;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 0.5rem;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        height: 0.875rem;\n        width: 0.875rem;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  "
             ],
             "template": "<label class=\"input-text__wrapper\" [for]=\"id\">\n  @if (iconName(); as icon) {\n    <app-icon [name]=\"icon\" class=\"input-text__icon\" aria-hidden=\"true\"></app-icon>\n  }\n  <input\n    type=\"text\"\n    [id]=\"id\"\n    class=\"input-text__control paragraph-tiny\"\n    [placeholder]=\"placeholder()\"\n    [value]=\"value\"\n    (input)=\"onInput($event)\"\n    [disabled]=\"disabled\"\n  />\n</label>\n",
             "templateUrl": [],
@@ -993,7 +2144,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 85,
+                    "line": 82,
                     "modifierKind": [
                         148
                     ],
@@ -1008,7 +2159,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 86,
+                    "line": 83,
                     "modifierKind": [
                         148
                     ],
@@ -1026,7 +2177,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 89
+                    "line": 86
                 },
                 {
                     "name": "id",
@@ -1037,7 +2188,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 90,
+                    "line": 87,
                     "modifierKind": [
                         148
                     ]
@@ -1050,7 +2201,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 92
+                    "line": 89
                 },
                 {
                     "name": "onTouched",
@@ -1060,7 +2211,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 93
+                    "line": 90
                 },
                 {
                     "name": "value",
@@ -1071,7 +2222,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 88
+                    "line": 85
                 }
             ],
             "methodsClass": [
@@ -1090,7 +2241,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 95,
+                    "line": 92,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -1132,7 +2283,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 107,
+                    "line": 104,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -1175,7 +2326,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 111,
+                    "line": 108,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -1208,7 +2359,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 115,
+                    "line": 112,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -1240,7 +2391,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 103,
+                    "line": 100,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -1272,10 +2423,10 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\n@Component({\n  selector: 'app-text-input',\n  imports: [IconComponent],\n  template: `\n    <label class=\"input-text__wrapper\" [for]=\"id\">\n      @if (iconName(); as icon) {\n        <app-icon [name]=\"icon\" class=\"input-text__icon\" aria-hidden=\"true\"></app-icon>\n      }\n      <input\n        type=\"text\"\n        [id]=\"id\"\n        class=\"input-text__control paragraph-tiny\"\n        [placeholder]=\"placeholder()\"\n        [value]=\"value\"\n        (input)=\"onInput($event)\"\n        [disabled]=\"disabled\"\n      />\n    </label>\n  `,\n  styles: `\n    .input-text {\n      \n\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 0.5938rem 0.5625rem;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        height: 2.1875rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n        box-sizing: border-box;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 0.5rem;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        height: 0.875rem;\n        width: 0.875rem;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => TextInput),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TextInput implements ControlValueAccessor {\n  readonly iconName = input<string | null>(null);\n  readonly placeholder = input<string>('');\n\n  value = '';\n  disabled = false;\n  readonly id = 'text-input-' + Math.random().toString(9);\n\n  onChange: ((value: string) => void) | undefined;\n  onTouched: (() => void) | undefined;\n\n  onInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.value = target.value;\n    if (this.onChange) {\n      this.onChange(this.value);\n    }\n  }\n\n  writeValue(value: unknown): void {\n    this.value = typeof value === 'string' ? value : '';\n  }\n\n  registerOnChange(fn: (value: string) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled = isDisabled;\n  }\n}\n",
+            "sourceCode": "import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';\nimport { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';\nimport { IconComponent } from '@ui/icon/icon';\n\n@Component({\n  selector: 'app-text-input',\n  imports: [IconComponent],\n  template: `\n    <label class=\"input-text__wrapper\" [for]=\"id\">\n      @if (iconName(); as icon) {\n        <app-icon [name]=\"icon\" class=\"input-text__icon\" aria-hidden=\"true\"></app-icon>\n      }\n      <input\n        type=\"text\"\n        [id]=\"id\"\n        class=\"input-text__control paragraph-tiny\"\n        [placeholder]=\"placeholder()\"\n        [value]=\"value\"\n        (input)=\"onInput($event)\"\n        [disabled]=\"disabled\"\n      />\n    </label>\n  `,\n  styles: `\n    .input-text {\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 0.6563rem 0.5625rem;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        height: 100%;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 0.5rem;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        height: 0.875rem;\n        width: 0.875rem;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  `,\n  providers: [\n    {\n      provide: NG_VALUE_ACCESSOR,\n      useExisting: forwardRef(() => TextInput),\n      multi: true,\n    },\n  ],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n})\nexport class TextInput implements ControlValueAccessor {\n  readonly iconName = input<string | null>(null);\n  readonly placeholder = input<string>('');\n\n  value = '';\n  disabled = false;\n  readonly id = 'text-input-' + Math.random().toString(9);\n\n  onChange: ((value: string) => void) | undefined;\n  onTouched: (() => void) | undefined;\n\n  onInput(event: Event): void {\n    const target = event.target as HTMLInputElement;\n    this.value = target.value;\n    if (this.onChange) {\n      this.onChange(this.value);\n    }\n  }\n\n  writeValue(value: unknown): void {\n    this.value = typeof value === 'string' ? value : '';\n  }\n\n  registerOnChange(fn: (value: string) => void): void {\n    this.onChange = fn;\n  }\n\n  registerOnTouched(fn: () => void): void {\n    this.onTouched = fn;\n  }\n\n  setDisabledState(isDisabled: boolean): void {\n    this.disabled = isDisabled;\n  }\n}\n",
             "assetsDirs": [],
             "styleUrlsData": "",
-            "stylesData": "\n    .input-text {\n      \n\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 0.5938rem 0.5625rem;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        height: 2.1875rem;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n        box-sizing: border-box;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 0.5rem;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        height: 0.875rem;\n        width: 0.875rem;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  \n",
+            "stylesData": "\n    .input-text {\n      &__wrapper {\n        display: flex;\n        align-items: center;\n        width: 100%;\n        padding: 0.6563rem 0.5625rem;\n        border: 0.0625rem solid var(--separator, #e0e0e0);\n        border-radius: 0.25rem;\n        height: 100%;\n        background-color: var(--background, #ffffff);\n        transition:\n          border-color 0.2s ease,\n          box-shadow 0.2s ease;\n        cursor: text;\n\n        &:focus-within {\n          border-color: var(--cerulean);\n\n          .input-text__icon {\n            color: var(--cerulean);\n          }\n        }\n      }\n\n      &__icon {\n        flex-shrink: 0;\n        margin-right: 0.5rem;\n        color: var(--text-color, inherit);\n        transition: color 0.2s ease;\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        height: 0.875rem;\n        width: 0.875rem;\n      }\n\n      &__control {\n        flex: 1 1 auto;\n        width: 100%;\n        min-width: 0;\n        border: none;\n        outline: none;\n        background: transparent;\n        padding: 0;\n      }\n    }\n  \n",
             "extends": [],
             "implements": [
                 "ControlValueAccessor"
@@ -1293,21 +2444,144 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "ApplicationConfig",
-                "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes, withComponentInputBinding()),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+                "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes, withComponentInputBinding()),\n    provideHttpClient(),\n    provideStore([CategoryState], withNgxsLoggerPlugin()),\n  ],\n}"
             },
             {
-                "name": "routes",
+                "name": "categoriesResolver",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/app/app.routes.ts",
+                "file": "src/app/core/resolvers/categories.resolver.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Routes",
-                "defaultValue": "[\n  { path: '', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category/:sortType', component: CategoryPage },\n]"
+                "type": "ResolveFn<literal type>",
+                "defaultValue": "() => {\n  const store = inject(Store);\n\n  return store.dispatch(new FetchCategoriesData()).pipe(\n    map(() => {\n      return {\n        categories: store.selectSnapshot((state) => state.categories.allCategories),\n        visibleCategories: store.selectSnapshot((state) => state.categories.visibleCategories),\n        categoryGroups: store.selectSnapshot((state) => state.categories.categoryGroups),\n        visibleCategoriesOrderedByGroups: store.selectSnapshot(\n          (state) => state.categories.visibleCategoriesOrderedByGroups,\n        ),\n        visibleCategoriesOrderedByAlphabet: store.selectSnapshot(\n          (state) => state.categories.visibleCategoriesOrderedByAlphabet,\n        ),\n      };\n    }),\n  );\n}"
+            },
+            {
+                "name": "PILL_COLORS",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/ui/pill/pill-color.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "[]",
+                "defaultValue": "['blue', 'red', 'yellow', 'purple', 'pink', 'green']"
             }
         ],
-        "functions": [],
-        "typealiases": [],
+        "functions": [
+            {
+                "name": "getPillColor",
+                "file": "src/app/ui/pill/pill-color.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [
+                    {
+                        "name": "color",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "returnType": "PillColor",
+                "jsdoctags": [
+                    {
+                        "name": "color",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "isPillColor",
+                "file": "src/app/ui/pill/pill-color.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [
+                    {
+                        "name": "value",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "returnType": "PillColor",
+                "jsdoctags": [
+                    {
+                        "name": "value",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            }
+        ],
+        "typealiases": [
+            {
+                "name": "Category",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "literal type",
+                "file": "src/app/core/models/category.model.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 188
+            },
+            {
+                "name": "CategoryGroup",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "literal type",
+                "file": "src/app/core/models/category.model.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 188
+            },
+            {
+                "name": "CategoryGroupWithPillColor",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "unknown",
+                "file": "src/app/core/models/category.model.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 194
+            },
+            {
+                "name": "PillColor",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "unknown",
+                "file": "src/app/ui/pill/pill-color.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 200
+            },
+            {
+                "name": "VisibleCategory",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "literal type",
+                "file": "src/app/core/models/category.model.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 188
+            }
+        ],
         "enumerations": [],
         "groupedVariables": {
             "src/app/app.config.ts": [
@@ -1319,34 +2593,179 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplicationConfig",
-                    "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes, withComponentInputBinding()),\n    provideStore([], withNgxsLoggerPlugin()),\n  ],\n}"
+                    "defaultValue": "{\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes, withComponentInputBinding()),\n    provideHttpClient(),\n    provideStore([CategoryState], withNgxsLoggerPlugin()),\n  ],\n}"
                 }
             ],
-            "src/app/app.routes.ts": [
+            "src/app/core/resolvers/categories.resolver.ts": [
                 {
-                    "name": "routes",
+                    "name": "categoriesResolver",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/app/app.routes.ts",
+                    "file": "src/app/core/resolvers/categories.resolver.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "Routes",
-                    "defaultValue": "[\n  { path: '', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category', redirectTo: 'category/grouped', pathMatch: 'full' },\n  { path: 'category/:sortType', component: CategoryPage },\n]"
+                    "type": "ResolveFn<literal type>",
+                    "defaultValue": "() => {\n  const store = inject(Store);\n\n  return store.dispatch(new FetchCategoriesData()).pipe(\n    map(() => {\n      return {\n        categories: store.selectSnapshot((state) => state.categories.allCategories),\n        visibleCategories: store.selectSnapshot((state) => state.categories.visibleCategories),\n        categoryGroups: store.selectSnapshot((state) => state.categories.categoryGroups),\n        visibleCategoriesOrderedByGroups: store.selectSnapshot(\n          (state) => state.categories.visibleCategoriesOrderedByGroups,\n        ),\n        visibleCategoriesOrderedByAlphabet: store.selectSnapshot(\n          (state) => state.categories.visibleCategoriesOrderedByAlphabet,\n        ),\n      };\n    }),\n  );\n}"
+                }
+            ],
+            "src/app/ui/pill/pill-color.ts": [
+                {
+                    "name": "PILL_COLORS",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/ui/pill/pill-color.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "[]",
+                    "defaultValue": "['blue', 'red', 'yellow', 'purple', 'pink', 'green']"
                 }
             ]
         },
-        "groupedFunctions": {},
+        "groupedFunctions": {
+            "src/app/ui/pill/pill-color.ts": [
+                {
+                    "name": "getPillColor",
+                    "file": "src/app/ui/pill/pill-color.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "color",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "returnType": "PillColor",
+                    "jsdoctags": [
+                        {
+                            "name": "color",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "isPillColor",
+                    "file": "src/app/ui/pill/pill-color.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "value",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "returnType": "PillColor",
+                    "jsdoctags": [
+                        {
+                            "name": "value",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         "groupedEnumerations": {},
-        "groupedTypeAliases": {}
+        "groupedTypeAliases": {
+            "src/app/core/models/category.model.ts": [
+                {
+                    "name": "Category",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "literal type",
+                    "file": "src/app/core/models/category.model.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 188
+                },
+                {
+                    "name": "CategoryGroup",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "literal type",
+                    "file": "src/app/core/models/category.model.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 188
+                },
+                {
+                    "name": "CategoryGroupWithPillColor",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "unknown",
+                    "file": "src/app/core/models/category.model.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 194
+                },
+                {
+                    "name": "VisibleCategory",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "literal type",
+                    "file": "src/app/core/models/category.model.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 188
+                }
+            ],
+            "src/app/ui/pill/pill-color.ts": [
+                {
+                    "name": "PillColor",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "unknown",
+                    "file": "src/app/ui/pill/pill-color.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 200
+                }
+            ]
+        }
     },
     "routes": {
         "name": "<root>",
         "kind": "module",
         "children": [
             {
-                "name": "CategoryPage",
-                "kind": "component",
-                "path": "category/:sortType",
+                "name": "category",
+                "kind": "route-path",
+                "filename": "src/app/app.routes.ts"
+            },
+            {
+                "name": "category/:sortType",
+                "kind": "route-path",
+                "filename": "src/app/app.routes.ts"
+            },
+            {
+                "name": "category/grouped",
+                "kind": "route-redirect",
+                "filename": "src/app/app.routes.ts"
+            },
+            {
+                "name": "category/grouped",
+                "kind": "route-redirect",
                 "filename": "src/app/app.routes.ts"
             }
         ]
@@ -1366,16 +2785,6 @@
                 "status": "low"
             },
             {
-                "filePath": "src/app/app.routes.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "routes",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
                 "filePath": "src/app/app.ts",
                 "type": "component",
                 "linktype": "component",
@@ -1385,12 +2794,89 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/core/models/category.model.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Category",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/core/models/category.model.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "CategoryGroup",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/core/models/category.model.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "CategoryGroupWithPillColor",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/core/models/category.model.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "VisibleCategory",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/core/resolvers/categories.resolver.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "categoriesResolver",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/core/services/category.webservice.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "CategoryService",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/category-page/category-page.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "CategoryPageService",
+                "coveragePercent": 0,
+                "coverageCount": "0/16",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/category-page/category-page.service.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "CategoryQueryParams",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/features/category-page/category-page.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "CategoryPage",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -1403,12 +2889,66 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/store/category/category.actions.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "FetchCategoriesData",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/category/category.actions.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "FetchVisibleCategoriesData",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/category/category.selectors.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "CategorySelectors",
+                "coveragePercent": 0,
+                "coverageCount": "0/6",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/category/category.state.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "CategoryState",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/store/category/category.state.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "CategoryStateModel",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/button/button.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Button",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/ui/card/card.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "Card",
                 "coveragePercent": 0,
-                "coverageCount": "0/4",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -1448,10 +2988,59 @@
                 "status": "low"
             },
             {
+                "filePath": "src/app/ui/pill/pill-color.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "getPillColor",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/pill/pill-color.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "isPillColor",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/pill/pill-color.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "PILL_COLORS",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/pill/pill-color.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "PillColor",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
                 "filePath": "src/app/ui/pill/pill.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "Pill",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/ui/subnav/subnav.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "Subnav",
                 "coveragePercent": 0,
                 "coverageCount": "0/2",
                 "status": "low"

@@ -1,79 +1,96 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Header } from '@shared/components/header/header';
+import { Card } from '@ui/card/card';
 import { DropdownComponent, DropdownOption } from '@ui/form/dropdown/dropdown';
 import { TextInput } from '@ui/form/text-input/text-input';
+import { Subnav } from '@ui/subnav/subnav';
+import { debounceTime } from 'rxjs';
+import { CategoryPageService } from './category-page-service/category-page.service';
+import { ButtonComponent } from '@ui/button/button';
+import { Category, CategoryGroupWithPillColor } from '@core/models/category.model';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-category-page',
   standalone: true,
-  imports: [Header, ReactiveFormsModule, DropdownComponent, TextInput],
-  template: `
-    <app-header></app-header>
-
-    <section class="category-page">
-      <form [formGroup]="form" class="category-page__form">
-        <app-text-input
-          formControlName="search"
-          placeholder="Rechercher une catégorie"
-          iconName="search"
-          class="category-page__form__search"
-        ></app-text-input>
-        <app-dropdown
-          formControlName="dropdown"
-          [placeholder]="'Tous les groupes de catégories'"
-          [options]="exampleOptions"
-          class="category-page__form__dropdown"
-        ></app-dropdown>
-      </form>
-    </section>
-  `,
-  styles: `
-    :host {
-      display: block;
-      background-color: var(--background-page);
-      height: 100%;
-    }
-
-    .category-page {
-      display: flex;
-      margin: 2rem 7.625rem 2.8125rem;
-      background-color: white;
-
-      &__form {
-        display: flex;
-        padding: 1rem 1rem 1.5rem;
-        gap: 1rem;
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-
-        &__search {
-          flex: 1;
-          height: 2.1875rem;
-        }
-
-        &__dropdown {
-          width: 16.9375rem;
-          flex-shrink: 0;
-          height: 2.1875rem;
-        }
-      }
-    }
-  `,
+  imports: [
+    Header,
+    ReactiveFormsModule,
+    DropdownComponent,
+    TextInput,
+    Card,
+    Subnav,
+    ButtonComponent,
+    NgTemplateOutlet,
+  ],
+  templateUrl: './category-page.html',
+  styleUrl: './category-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoryPage {
-  sortType = input<string>('grouped');
+  readonly sortType = input<string>('grouped');
 
-  readonly exampleOptions: DropdownOption<string>[] = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' },
-  ];
+  readonly #categoryPageService = inject(CategoryPageService);
+  readonly #route = inject(ActivatedRoute);
+
+  get categoriesAlphabetically(): Category[] {
+    return this.#categoryPageService.getCategoriesByAlphabet();
+  }
+
+  get categoriesGrouped(): Map<CategoryGroupWithPillColor, Category[]> {
+    return this.#categoryPageService.getCategoriesGrouped();
+  }
+
+  get dropdownOptions(): DropdownOption<string>[] {
+    return this.#categoryPageService.dropdownOptions();
+  }
+
+  get isLoading(): boolean {
+    return this.#categoryPageService.isLoading();
+  }
+
+  get error(): string | null {
+    return this.#categoryPageService.error();
+  }
+
+  get selectedCategoryId(): number | null {
+    return this.#categoryPageService.selectedCategoryId();
+  }
+
+  readonly skeletonArray = Array.from({ length: 6 }, (_, i) => i);
 
   readonly form = new FormGroup({
     search: new FormControl<string>(''),
     dropdown: new FormControl<string>(''),
   });
+
+  constructor() {
+    this.#route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.form.patchValue(
+        {
+          search: params.get('search') || '',
+          dropdown: params.get('group') || '',
+        },
+        { emitEvent: false },
+      );
+    });
+
+    this.form.valueChanges.pipe(takeUntilDestroyed(), debounceTime(300)).subscribe((value) => {
+      this.#categoryPageService.addFiltersToQueryParams(
+        value.search ?? null,
+        value.dropdown ? Number(value.dropdown) : null,
+      );
+    });
+  }
+
+  selectCard(id: number): void {
+    this.#categoryPageService.selectedCategoryId.set(id);
+  }
+
+  showSelectedCard(): void {
+    this.#categoryPageService.showSelectedCategory();
+  }
 }

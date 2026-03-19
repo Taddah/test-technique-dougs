@@ -1,0 +1,113 @@
+<app-header></app-header>
+
+<main class="category-page">
+  <form [formGroup]="form" class="category-page__form" role="search">
+    <app-text-input
+      formControlName="search"
+      placeholder="Rechercher une catégorie"
+      iconName="search"
+      class="category-page__form__search"
+    ></app-text-input>
+
+    @if (dropdownOptions.length > 0) {
+      <app-dropdown
+        formControlName="dropdown"
+        [placeholder]="'Tous les groupes de catégories'"
+        [options]="dropdownOptions"
+        class="category-page__form__dropdown"
+      ></app-dropdown>
+    }
+  </form>
+
+  <!-- Affichage des erreurs -->
+  @if (error) {
+    <p class="paragraph-small category-page__error">{{ error }}</p>
+  }
+
+  <!-- Loading skeleton -->
+  @if (isLoading) {
+    <ul class="category-page__skeleton" aria-hidden="true">
+      @for (index of skeletonArray; track index) {
+        <li>
+          <div class="category-page__skeleton__card"></div>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Vue 0 catégorie -->
+  <ng-template #noCategoryMessage>
+    <p class="paragraph-small category-page__no-category">Aucune catégorie trouvée</p>
+  </ng-template>
+
+  <!-- Vue alphabetique -->
+  @if (sortType() === 'alpha' && !isLoading) {
+    <ul class="category-page__categories">
+      @for (category of categoriesAlphabetically; track category) {
+        <li>
+          <button
+            type="button"
+            (click)="selectCard(category.id)"
+            [attr.aria-label]="'Sélectionner la catégorie ' + category.wording"
+          >
+            <app-card
+              [title]="category.wording"
+              [description]="category.description"
+              [tag]="category.group?.name"
+              [tagColor]="category.group?.color"
+              [selected]="selectedCategoryId === category.id"
+            ></app-card>
+          </button>
+        </li>
+      } @empty {
+        <li>
+          <ng-container *ngTemplateOutlet="noCategoryMessage"></ng-container>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Vue par groupe -->
+  @if (sortType() === 'grouped' && !isLoading) {
+    <ul class="category-page__category-groups">
+      @for (group of categoriesGrouped; track group[0].id) {
+        @if (group[0].id) {
+          <li>
+            <app-subnav [color]="group[0].pillColor">{{ group[0].name }}</app-subnav>
+          </li>
+        }
+        <li>
+          <ul class="category-page__categories">
+            @for (category of group[1]; track category.id) {
+              <li>
+                <button
+                  type="button"
+                  (click)="selectCard(category.id)"
+                  [attr.aria-label]="'Sélectionner la catégorie ' + category.wording"
+                >
+                  <app-card
+                    [title]="category.wording"
+                    [description]="category.description"
+                    [selected]="selectedCategoryId === category.id"
+                  ></app-card>
+                </button>
+              </li>
+            } @empty {
+              <li>
+                <ng-container *ngTemplateOutlet="noCategoryMessage"></ng-container>
+              </li>
+            }
+          </ul>
+        </li>
+      } @empty {
+        <li>
+          <ng-container *ngTemplateOutlet="noCategoryMessage"></ng-container>
+        </li>
+      }
+    </ul>
+  }
+</main>
+
+<footer class="footer">
+  <app-button type="button" (click)="showSelectedCard()">Sélectionner la catégorie</app-button>
+</footer>
