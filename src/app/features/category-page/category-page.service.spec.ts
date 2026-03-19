@@ -180,7 +180,7 @@ describe('CategoryPageService', () => {
 
       service.showSelectedCategory();
 
-      expect(consoleSpy).toHaveBeenCalledWith(mockCategories[0]);
+      expect(consoleSpy).toHaveBeenCalledWith('Catégorie sélectionnée :', mockCategories[0]);
       consoleSpy.mockRestore();
     });
   });
