@@ -1,11 +1,11 @@
 import { type Meta, type StoryObj } from '@storybook/angular';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { DropdownComponent, DropdownOption } from '@ui/form/dropdown/dropdown';
+import { Dropdown, DropdownOption } from '@ui/form/dropdown/dropdown';
 
-const meta: Meta<DropdownComponent<string>> = {
+const meta: Meta<Dropdown<string>> = {
   title: 'UI/Form/Dropdown',
-  component: DropdownComponent,
+  component: Dropdown,
   argTypes: {
     placeholder: { control: 'text' },
     disabled: { control: 'boolean' },
@@ -13,7 +13,7 @@ const meta: Meta<DropdownComponent<string>> = {
 };
 
 export default meta;
-type Story = StoryObj<DropdownComponent<string>>;
+type Story = StoryObj<Dropdown<string>>;
 
 const exampleOptions: DropdownOption<string>[] = [
   { value: 'option1', label: 'Option 1' },
@@ -51,7 +51,7 @@ export const Default: Story = {
         </div>
       `,
       moduleMetadata: {
-        imports: [ReactiveFormsModule, JsonPipe, DropdownComponent],
+        imports: [ReactiveFormsModule, JsonPipe, Dropdown],
       },
     };
   },

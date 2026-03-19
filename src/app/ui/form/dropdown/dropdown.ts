@@ -11,7 +11,7 @@ import {
   inject,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IconComponent } from '@ui/icon/icon';
+import { Icon } from '@ui/icon/icon';
 
 export interface DropdownOption<T = string> {
   value: T;
@@ -20,7 +20,8 @@ export interface DropdownOption<T = string> {
 
 @Component({
   selector: 'app-dropdown',
-  imports: [IconComponent],
+  standalone: true,
+  imports: [Icon],
   template: `
     <div
       class="dropdown__wrapper"
@@ -67,7 +68,7 @@ export interface DropdownOption<T = string> {
         align-items: center;
         width: 100%;
         border: 1px solid var(--separator, #e0e0e0);
-        border-radius: 0.25rem;
+        border-radius: 4px;
         background-color: var(--background, #ffffff);
         transition:
           border-color 0.2s ease,
@@ -128,7 +129,7 @@ export interface DropdownOption<T = string> {
         right: 0;
         background-color: var(--background, #ffffff);
         border: 1px solid var(--separator);
-        border-radius: 0.25rem;
+        border-radius: 4px;
         list-style: none;
         padding: 0.25rem 0;
         margin: 0;
@@ -160,13 +161,13 @@ export interface DropdownOption<T = string> {
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DropdownComponent),
+      useExisting: forwardRef(() => Dropdown),
       multi: true,
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DropdownComponent<T> implements ControlValueAccessor {
+export class Dropdown<T> implements ControlValueAccessor {
   private readonly elementRef = inject(ElementRef);
 
   readonly placeholder = input<string>('');

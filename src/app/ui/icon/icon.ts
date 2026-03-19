@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-icon',
@@ -26,8 +26,9 @@ import { Component, input, computed } from '@angular/core';
       mask-repeat: no-repeat;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class IconComponent {
+export class Icon {
   name = input.required<string>();
   iconUrl = computed(() => `url(assets/icons/${this.name()}.svg)`);
 }

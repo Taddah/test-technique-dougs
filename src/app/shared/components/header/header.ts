@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Tab } from '@ui/tab/tab';
-import { IconComponent } from '@ui/icon/icon';
+import { Icon } from '@ui/icon/icon';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [Tab, IconComponent],
+  imports: [Tab, Icon],
   template: `
     <header class="header" role="banner">
       <h4>Catégories</h4>

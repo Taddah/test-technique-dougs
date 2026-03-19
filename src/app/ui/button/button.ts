@@ -18,7 +18,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       width: fit-content;
       height: 2.1875rem;
       padding: 0.4688rem 0.75rem;
-      gap: 6px;
+      gap: 0.375rem;
       background-color: var(--cerulean);
       border-radius: 4px;
       border: none;
@@ -40,7 +40,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
     }
   `,
 })
-export class ButtonComponent {
+export class Button {
   readonly clicked = output<void>();
   readonly type = input<'button' | 'submit' | 'reset'>('button');
 

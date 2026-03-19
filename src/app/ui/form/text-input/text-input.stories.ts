@@ -2,7 +2,6 @@ import { JsonPipe } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { type Meta, type StoryObj } from '@storybook/angular';
 import { TextInput } from '@ui/form/text-input/text-input';
-import { DropdownComponent } from '../dropdown/dropdown';
 
 const meta: Meta<TextInput> = {
   title: 'UI/Form/Text Input',
@@ -41,7 +40,7 @@ export const Default: Story = {
         </div>
       `,
       moduleMetadata: {
-        imports: [ReactiveFormsModule, JsonPipe, DropdownComponent],
+        imports: [ReactiveFormsModule, JsonPipe],
       },
     };
   },

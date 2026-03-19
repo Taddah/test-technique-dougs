@@ -4,12 +4,12 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Header } from '@shared/components/header/header';
 import { Card } from '@ui/card/card';
-import { DropdownComponent, DropdownOption } from '@ui/form/dropdown/dropdown';
+import { Dropdown, DropdownOption } from '@ui/form/dropdown/dropdown';
 import { TextInput } from '@ui/form/text-input/text-input';
 import { Subnav } from '@ui/subnav/subnav';
 import { debounceTime } from 'rxjs';
 import { CategoryPageService } from './category-page-service/category-page.service';
-import { ButtonComponent } from '@ui/button/button';
+import { Button } from '@ui/button/button';
 import { Category, CategoryGroupWithPillColor } from '@core/models/category.model';
 import { NgTemplateOutlet } from '@angular/common';
 
@@ -19,11 +19,11 @@ import { NgTemplateOutlet } from '@angular/common';
   imports: [
     Header,
     ReactiveFormsModule,
-    DropdownComponent,
+    Dropdown,
     TextInput,
     Card,
     Subnav,
-    ButtonComponent,
+    Button,
     NgTemplateOutlet,
   ],
   templateUrl: './category-page.html',

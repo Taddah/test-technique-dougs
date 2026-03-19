@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IconComponent } from '@ui/icon/icon';
+import { Icon } from '@ui/icon/icon';
 
 @Component({
   selector: 'app-text-input',
-  imports: [IconComponent],
+  imports: [Icon],
+  standalone: true,
   template: `
     <label class="input-text__wrapper" [for]="id">
       @if (iconName(); as icon) {
@@ -29,7 +30,7 @@ import { IconComponent } from '@ui/icon/icon';
         width: 100%;
         padding: 0.6563rem 0.5625rem;
         border: 0.0625rem solid var(--separator, #e0e0e0);
-        border-radius: 0.25rem;
+        border-radius: 4px;
         height: 100%;
         background-color: var(--background, #ffffff);
         transition:
