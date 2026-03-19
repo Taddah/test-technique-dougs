@@ -114,6 +114,12 @@ export class CategoryPageService {
     const selectedCategory = this.#categories().find(
       (category) => category.id === this.selectedCategoryId(),
     );
+
+    if (!selectedCategory) {
+      console.log('Catégorie sélectionnée introuvable');
+    }
+
+    alert('Catégorie sélectionnée : ' + selectedCategory?.wording);
     console.log('Catégorie sélectionnée :', selectedCategory);
   }
 
