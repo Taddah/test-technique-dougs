@@ -31,7 +31,7 @@ import { IconComponent } from '@ui/icon/icon';
     .header {
       position: sticky;
       display: flex;
-      padding: 1.0625rem 7.625rem;
+      padding: 0.9375rem 7.625rem;
       gap: 0.5rem;
       background-color: white;
       top: 0;
