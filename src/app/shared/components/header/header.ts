@@ -34,6 +34,8 @@ import { IconComponent } from '@ui/icon/icon';
       padding: 1.0625rem 7.625rem;
       gap: 0.5rem;
       background-color: white;
+      top: 0;
+      width: 100%;
 
       ul {
         list-style: none;
