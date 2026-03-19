@@ -41,7 +41,6 @@ import { Icon } from '@ui/icon/icon';
       display: flex;
       align-items: center;
       justify-content: space-between;
-
       background-color: white;
       padding: 0.75rem 1rem;
       gap: 0.5rem;

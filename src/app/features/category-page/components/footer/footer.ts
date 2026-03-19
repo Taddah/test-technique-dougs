@@ -18,9 +18,10 @@ import { Button } from '@ui/button/button';
       position: sticky;
       bottom: 0;
       left: 0;
-
       width: 100%;
+      z-index: 100;
     }
+
     .footer {
       display: flex;
       background-color: white;
