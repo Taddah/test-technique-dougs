@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { Button } from './button';
+import { Button } from '@ui/button/button';
 
 const meta: Meta<Button & { content: string }> = {
   title: 'UI/Bouton',

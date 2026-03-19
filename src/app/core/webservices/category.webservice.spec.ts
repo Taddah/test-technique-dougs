@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { CATEGORY_API_URL } from '@core/tokens/category-api-url.token';
-import { CategoryWebService } from './category.webservice';
+import { CategoryWebService } from '@core/webservices/category.webservice';
 import { Category, VisibleCategory } from '@core/models/category.model';
 
 describe('CategoryService', () => {

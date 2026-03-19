@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { Subnav } from './subnav';
+import { Subnav } from '@ui/subnav/subnav';
 
 const meta: Meta<Subnav & { content: string }> = {
   title: 'UI/Subnav',

@@ -8,10 +8,10 @@ import { Dropdown, DropdownOption } from '@ui/form/dropdown/dropdown';
 import { TextInput } from '@ui/form/text-input/text-input';
 import { Subnav } from '@ui/subnav/subnav';
 import { debounceTime } from 'rxjs';
-import { CategoryPageService } from './services/category-page.service';
+import { CategoryPageService } from '@features/category-page/services/category-page.service';
 import { Category, CategoryGroupWithPillColor } from '@core/models/category.model';
 import { NgTemplateOutlet } from '@angular/common';
-import { CategoryFooter } from './components/footer/footer';
+import { CategoryFooter } from '@features/category-page/components/footer/footer';
 
 @Component({
   selector: 'app-category-page',
