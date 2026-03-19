@@ -12,6 +12,29 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Notes on server communication
+
+The project supports two interoperability modes with the Node.js backend (port 3001):
+
+### Mode A : Vite Proxy 
+
+Avoids any backend modifications. It intercepts `/api` calls and redirects them to port 3001.
+**Config** : proxy.conf.json (target: http://127.0.0.1:3001 or http://localhost ou IP locale).
+Execution: 
+```bash
+npm run start-with-proxy
+```
+  
+### Mode B : Direct (Fallback)
+Direct calls to port 3001. Requires `cors()` to be enabled on the Node.js side.
+
+**Config**: Update the factory in `src/app/core/tokens/category-api-url.token.ts` to `http://localhost:3001`
+
+Execution: 
+```bash
+npm run start
+```
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
