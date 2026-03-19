@@ -4,21 +4,20 @@ import { SafeHtmlPipe } from '@shared/pipes/safe-html/safe-html-pipe';
 
 describe('SafeHtmlPipe', () => {
   let pipe: SafeHtmlPipe;
-  let sanitizer: DomSanitizer;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        SafeHtmlPipe,
         {
           provide: DomSanitizer,
           useValue: {
-            bypassSecurityTrustHtml: (val: string) => val, // Mock simple
+            bypassSecurityTrustHtml: (val: string) => val,
           },
         },
       ],
     });
-    sanitizer = TestBed.inject(DomSanitizer);
-    pipe = new SafeHtmlPipe(sanitizer);
+    pipe = TestBed.inject(SafeHtmlPipe);
   });
 
   it('should create an instance', () => {
