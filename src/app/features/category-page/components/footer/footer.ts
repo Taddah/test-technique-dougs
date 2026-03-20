@@ -8,7 +8,9 @@ import { Button } from '@ui/button/button';
   standalone: true,
   template: `
     <footer class="footer">
-      <app-button type="button" (click)="showSelectedCard()">Sélectionner la catégorie</app-button>
+      <app-button type="button" (click)="showSelectedCard()" [disabled]="isDisabled"
+        >Sélectionner la catégorie</app-button
+      >
     </footer>
   `,
   styles: `
@@ -40,6 +42,10 @@ import { Button } from '@ui/button/button';
 })
 export class CategoryFooter {
   readonly #categoryPageService = inject(CategoryPageService);
+
+  get isDisabled(): boolean {
+    return this.#categoryPageService.selectedCategoryId() === null;
+  }
 
   showSelectedCard(): void {
     this.#categoryPageService.showSelectedCategory();

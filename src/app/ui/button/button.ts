@@ -5,7 +5,13 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button class="btn" (click)="onClick()">
+    <button
+      class="btn"
+      (click)="onClick()"
+      [disabled]="disabled()"
+      [title]="disabled() ? 'Veuillez sélectionner une catégorie' : ''"
+      type="button"
+    >
       <ng-content></ng-content>
     </button>
   `,
@@ -38,11 +44,20 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
     .btn:active {
       filter: brightness(0.8);
     }
+
+    .btn:disabled {
+      background-color: #ccc;
+      color: #888;
+      cursor: not-allowed;
+      filter: none;
+      opacity: 0.7;
+    }
   `,
 })
 export class Button {
   readonly clicked = output<void>();
   readonly type = input<'button' | 'submit' | 'reset'>('button');
+  readonly disabled = input<boolean>(false);
 
   onClick(): void {
     this.clicked.emit();

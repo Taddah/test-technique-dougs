@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Tab } from '@ui/tab/tab';
 import { Icon } from '@ui/icon/icon';
+import { CategoryPageService } from '@features/category-page/services/category-page.service';
 
 @Component({
   selector: 'app-category-header',
@@ -12,13 +13,13 @@ import { Icon } from '@ui/icon/icon';
       <nav class="header__nav">
         <ul>
           <li>
-            <app-tab [link]="'/category/grouped'">
+            <app-tab [link]="'/category/grouped'" (click)="unselectCategory()">
               <app-icon name="category" />
               Groupe de catégorie
             </app-tab>
           </li>
           <li>
-            <app-tab [link]="'/category/alpha'">
+            <app-tab [link]="'/category/alpha'" (click)="unselectCategory()">
               <app-icon name="alphabet" />
               Ordre alphabétique
             </app-tab>
@@ -64,4 +65,10 @@ import { Icon } from '@ui/icon/icon';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CategoryHeader {}
+export class CategoryHeader {
+  readonly #categoryPageService = inject(CategoryPageService);
+
+  unselectCategory(): void {
+    this.#categoryPageService.selectedCategoryId.set(null);
+  }
+}
